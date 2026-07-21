@@ -1,0 +1,39 @@
+.hero{
+    position:relative;
+    z-index:2;
+
+    min-height:85vh;
+
+    display:flex;
+    align-items:center;
+
+    padding:0 80px;
+}
+
+.hero-content{
+    max-width:760px;
+}
+
+.hero-tag{
+    color:#6d6d6d;
+    letter-spacing:6px;
+    font-size:14px;
+    margin-bottom:32px;
+}
+
+.hero-title{
+    font-size:120px;
+    line-height:.92;
+    letter-spacing:-6px;
+    font-weight:700;
+}
+
+.hero-description{
+    margin-top:40px;
+    max-width:520px;
+
+    color:#8d8d8d;
+
+    font-size:22px;
+    line-height:1.8;
+}

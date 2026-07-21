@@ -1,0 +1,26 @@
+# Python
+server/venv/
+server/__pycache__/
+server/**/*.pyc
+
+# Uploads & reports
+server/uploads/
+server/reports/
+
+# Database (optional - remove if you want to commit it)
+server/*.db
+
+# React
+client/node_modules/
+client/dist/
+
+# Environment
+.env
+*.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
