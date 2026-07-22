@@ -209,8 +209,15 @@ def get_stats(
 @app.get("/analytics")
 def analytics(
     db: Session = Depends(get_db),
-    current_user: str = Depends(get_current_user),
+    current_user: str = Depends(get_current_user)
 ):
+    logs = (
+        db.query(AuditLog)
+        .filter(AuditLog.action == "UPLOAD")
+        .order_by(AuditLog.timestamp.desc())
+        .limit(7)
+        .all()
+    )
 
     logs.reverse()
 
@@ -220,7 +227,7 @@ def analytics(
         chart.append({
             "upload": f"#{i}",
             "uploads": i,
-            "filename": log.filename
+            "filename": log.filename,
         })
 
     return {
