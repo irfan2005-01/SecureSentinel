@@ -1,4 +1,4 @@
-<img width="1920" height="965" alt="Screenshot From 2026-07-22 13-38-30" src="https://github.com/user-attachments/assets/751e5906-1b3d-4ce6-879c-f1878628422f" /># 🛡️ SecureSentinel
+# 🛡️ SecureSentinel
 
 > A Secure File Integrity Verification & Audit Management System built with **React**, **FastAPI**, **SQLite**, and **SHA-256**.
 
@@ -259,6 +259,38 @@ admin
 Password:
 admin123
 ```
+
+---
+
+# 📷 Screenshots
+
+## Login
+<img width="1920" height="965" alt="Screenshot From 2026-07-22 13-38-30" src="https://github.com/user-attachments/assets/bf16243e-e064-4771-a50b-2f5864804c9e" />
+
+
+## Dashboard
+<img width="1920" height="965" alt="Screenshot From 2026-07-22 13-38-54" src="https://github.com/user-attachments/assets/02ba5fa6-9592-4fa8-b600-a95130513bfd" />
+
+
+## Upload
+<img width="1920" height="965" alt="Screenshot From 2026-07-22 13-39-08" src="https://github.com/user-attachments/assets/3341d7c7-f37c-41df-99e3-5e45c2c3b589" />
+
+
+## Verify
+<img width="1920" height="965" alt="Screenshot From 2026-07-22 13-39-18" src="https://github.com/user-attachments/assets/8bf58fdb-5c9e-4114-9f73-158d7e205bc3" />
+
+
+## Audit Logs
+<img width="1920" height="965" alt="Screenshot From 2026-07-22 13-39-28" src="https://github.com/user-attachments/assets/643674ec-468b-4938-b3d7-c8bd7a0bfc01" />
+
+
+## Alerts
+<img width="1920" height="965" alt="Screenshot From 2026-07-22 13-39-39" src="https://github.com/user-attachments/assets/8184b18a-9b80-4ebf-9be9-ea08f2d8becc" />
+
+
+## Profile
+<img width="1920" height="965" alt="Screenshot From 2026-07-22 13-39-50" src="https://github.com/user-attachments/assets/12f57270-2a40-4e04-8509-46a13c75e56a" />
+
 
 ---
 
