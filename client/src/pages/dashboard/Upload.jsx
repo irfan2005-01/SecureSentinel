@@ -1,5 +1,4 @@
 import "../../styles/Dashboard.css";
-
 import Sidebar from "../../components/Sidebar";
 import Topbar from "../../components/Topbar";
 import UploadCard from "../../components/UploadCard";
@@ -10,11 +9,7 @@ function Upload() {
       <Sidebar />
 
       <main className="dashboard-content">
-        <Topbar />
-
-        <h2 style={{ marginBottom: "24px" }}>
-          Upload Files
-        </h2>
+        <Topbar title="Vault File Ingestion & Records" description="Stream, encrypt, and anchor evidence assets across multi-cloud drivers" />
 
         <UploadCard />
       </main>

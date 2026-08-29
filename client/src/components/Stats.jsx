@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import {
-  FiDatabase,
-  FiCheckCircle,
-  FiAlertTriangle,
-  FiShield,
-} from "react-icons/fi";
+  HardDrive,
+
+  AlertTriangle,
+  ShieldAlert,
+  ShieldCheck,
+
+} from "lucide-react";
 import api from "../services/api";
 
 function Stats() {
@@ -14,44 +16,52 @@ function Stats() {
     tampered: 0,
     risk: "Low",
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     loadStats();
   }, []);
 
   async function loadStats() {
+    setLoading(true);
     try {
-      const res = await api.get("/stats");
-      setStats(res.data);
+      const res = await api.get("/api/analytics/stats");
+      setStats(res.data || {});
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch dashboard stats", err);
+    } finally {
+      setLoading(false);
     }
   }
 
   const cards = [
     {
-      title: "Total Files",
+      title: "Protected Vault Files",
       value: stats.total_files,
-      subtitle: "Stored in database",
-      icon: <FiDatabase />,
+      subtitle: "Active cryptographic baselines",
+      icon: <HardDrive size={20} color="#00f0ff" />,
+      color: "#00f0ff",
     },
     {
-      title: "Verified",
+      title: "Integrity Verified",
       value: stats.verified,
-      subtitle: "Integrity confirmed",
-      icon: <FiCheckCircle />,
+      subtitle: "Deterministic matches confirmed",
+      icon: <ShieldCheck size={20} color="#00e699" />,
+      color: "#00e699",
     },
     {
-      title: "Threats",
+      title: "Tamper Threats",
       value: stats.tampered,
-      subtitle: "Tampered files",
-      icon: <FiAlertTriangle />,
+      subtitle: "Mismatched signature alerts",
+      icon: <ShieldAlert size={20} color="#ff3366" />,
+      color: "#ff3366",
     },
     {
-      title: "Risk Score",
+      title: "Dynamic Risk Index",
       value: stats.risk,
-      subtitle: "Current system status",
-      icon: <FiShield />,
+      subtitle: stats.risk === "Low" ? "Optimal zero-drift status" : "Elevated threat response active",
+      icon: <AlertTriangle size={20} color={stats.risk === "Low" ? "#00e699" : "#f59e0b"} />,
+      color: stats.risk === "Low" ? "#00e699" : "#f59e0b",
     },
   ];
 
@@ -60,22 +70,15 @@ function Stats() {
       {cards.map((card) => (
         <div className="metric-card" key={card.title}>
           <div className="metric-top">
-            <span className="metric-title">
-              {card.title}
-            </span>
-
-            <div className="metric-icon">
-              {card.icon}
-            </div>
+            <span className="metric-title">{card.title}</span>
+            <div className="metric-icon">{card.icon}</div>
           </div>
 
-          <h2 className="metric-value">
-            {card.value}
+          <h2 className="metric-value" style={{ color: card.color }}>
+            {loading ? "..." : card.value}
           </h2>
 
-          <p className="metric-subtitle">
-            {card.subtitle}
-          </p>
+          <p className="metric-subtitle">{card.subtitle}</p>
         </div>
       ))}
     </section>
