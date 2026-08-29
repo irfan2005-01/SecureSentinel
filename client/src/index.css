@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -5,22 +7,41 @@
 }
 
 :root {
-  --bg: #0b0b0b;
-  --surface: #121212;
-  --border: #242424;
-  --text: #ffffff;
-  --muted: #9a9a9a;
+  --bg-primary: #050811;
+  --bg-secondary: #0a0f1d;
+  --bg-card: #0d1527;
+  --bg-glass: rgba(13, 21, 39, 0.75);
+  
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-glow: rgba(0, 240, 255, 0.3);
+  
+  --cyan-neon: #00f0ff;
+  --cyan-glow: rgba(0, 240, 255, 0.15);
+  --emerald-neon: #00e699;
+  --emerald-glow: rgba(0, 230, 153, 0.15);
+  --purple-neon: #a855f7;
+  --rose-neon: #ff3366;
+  --amber-neon: #f59e0b;
 
-  font-family: Inter, sans-serif;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color-scheme: dark;
 }
 
 html {
   scroll-behavior: smooth;
+  background-color: var(--bg-primary);
 }
 
 body {
-  background: var(--bg);
-  color: var(--text);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 a {
@@ -28,136 +49,77 @@ a {
   color: inherit;
 }
 
-button,
-input {
+code, pre, .font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+button, input, select, textarea {
   font: inherit;
   border: none;
   outline: none;
 }
 
-#root {
-  min-height: 100vh;
-}
-/* ==========================
-   Premium Metric Cards
-========================== */
-
-.stats-grid{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:24px;
-    margin:32px 0;
+/* Custom Cyber Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
-.metric-card{
-    background:#111;
-    border:1px solid #242424;
-    border-radius:22px;
-    padding:28px;
-    transition:.35s ease;
-    cursor:pointer;
+::-webkit-scrollbar-track {
+  background: #060913;
 }
 
-.metric-card:hover{
-    transform:translateY(-6px);
-    border-color:#444;
-    background:#151515;
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 999px;
 }
 
-.metric-top{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+::-webkit-scrollbar-thumb:hover {
+  background: var(--cyan-neon);
 }
 
-.metric-title{
-    font-size:13px;
-    letter-spacing:2px;
-    text-transform:uppercase;
-    color:#8c8c8c;
+/* Cyber Glassmorphic Utility Classes */
+.cyber-glass {
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-subtle);
 }
 
-.metric-icon{
-    width:46px;
-    height:46px;
-    border-radius:14px;
-    background:#181818;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    font-size:20px;
-    color:white;
+.cyber-glow-cyan {
+  box-shadow: 0 0 30px var(--cyan-glow);
 }
 
-.metric-value{
-    margin-top:26px;
-    font-size:52px;
-    font-weight:700;
-    line-height:1;
+.cyber-glow-emerald {
+  box-shadow: 0 0 30px var(--emerald-glow);
 }
 
-.metric-subtitle{
-    margin-top:12px;
-    color:#8c8c8c;
-    font-size:14px;
-}
-/* ==========================
-   Dashboard Header
-========================== */
-
-.dashboard-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    margin-bottom:40px;
+.cyber-gradient-text {
+  background: linear-gradient(135deg, #00f0ff 0%, #00e699 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.dashboard-tag{
-    color:#777;
-    font-size:12px;
-    letter-spacing:3px;
-    text-transform:uppercase;
+.cyber-gradient-purple {
+  background: linear-gradient(135deg, #a855f7 0%, #00f0ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.dashboard-title{
-    margin-top:10px;
-    font-size:56px;
-    font-weight:700;
-    line-height:1;
+/* Pulse badge animations */
+@keyframes cyberPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.96); }
 }
 
-.dashboard-description{
-    margin-top:18px;
-    color:#8c8c8c;
-    max-width:520px;
-    line-height:1.7;
+.animate-pulse-glow {
+  animation: cyberPulse 2.5s infinite ease-in-out;
 }
 
-.dashboard-user{
-    display:flex;
-    align-items:center;
-    gap:18px;
-}
-
-.user-avatar{
-    width:58px;
-    height:58px;
-    border-radius:50%;
-    background:white;
-    color:black;
-    font-weight:700;
-    font-size:22px;
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
-}
-
-.dashboard-user h4{
-    margin:0;
-}
-
-.dashboard-user span{
-    color:#777;
-    font-size:14px;
+/* High-tech grid background */
+.cyber-grid-bg {
+  background-image: 
+    linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
 }

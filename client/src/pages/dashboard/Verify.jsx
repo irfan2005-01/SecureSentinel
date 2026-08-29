@@ -1,5 +1,4 @@
 import "../../styles/Dashboard.css";
-
 import Sidebar from "../../components/Sidebar";
 import Topbar from "../../components/Topbar";
 import VerifyCard from "../../components/VerifyCard";
@@ -10,11 +9,7 @@ function Verify() {
       <Sidebar />
 
       <main className="dashboard-content">
-        <Topbar />
-
-        <h2 style={{ marginBottom: "24px" }}>
-          Verify File Integrity
-        </h2>
+        <Topbar title="Cryptographic Integrity Audit" description="Deterministic Provable Data Possession challenge against vault baseline signatures" />
 
         <VerifyCard />
       </main>

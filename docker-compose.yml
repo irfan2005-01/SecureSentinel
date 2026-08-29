@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    container_name: securesentinel-api
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=securesentinel_super_secret_jwt_encryption_key_2026_docker
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=1440
+      - DATABASE_URL=sqlite:////app/server/securesentinel.db
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:3000,http://localhost,http://127.0.0.1:5173
+    volumes:
+      - ./server/uploads:/app/server/uploads
+      - ./server/reports:/app/server/reports
+      - ./server/securesentinel.db:/app/server/securesentinel.db
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    container_name: securesentinel-ui
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
