@@ -62,8 +62,27 @@ export const getAuthUser = () => {
   }
 };
 
+export const isTokenExpired = (token) => {
+  if (!token || typeof token !== "string") return true;
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) return true;
+    const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
+    if (!payload.exp) return false;
+    return Date.now() >= payload.exp * 1000;
+  } catch {
+    return true;
+  }
+};
+
 export const isAuthenticated = () => {
-  return !!localStorage.getItem("token");
+  const token = localStorage.getItem("token");
+  if (!token) return false;
+  if (isTokenExpired(token)) {
+    clearAuthSession();
+    return false;
+  }
+  return true;
 };
 
 export default api;

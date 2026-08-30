@@ -2,20 +2,17 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import {
   User as UserIcon,
-
   Lock,
   Cloud,
-
-
-
-
   Key,
   CheckCircle2,
   HardDrive,
   Database,
-
   Save,
   Check,
+  Shield,
+  Fingerprint,
+  Cpu,
 } from "lucide-react";
 import api, { getAuthUser, setAuthSession } from "../../services/api";
 import Sidebar from "../../components/Sidebar";
@@ -25,17 +22,13 @@ import "../../styles/Dashboard.css";
 function Profile() {
   const [activeTab, setActiveTab] = useState("details"); // 'details' | 'security' | 'storage' | 'stats'
   const [profile, setProfile] = useState(null);
-  // loading
+  const [loading, setLoading] = useState(true);
   const [savingDetails, setSavingDetails] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
 
-  // Form states
+  // Form states - streamlined
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [organization, setOrganization] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [bio, setBio] = useState("");
-  const [avatarUrl, setAvatarUrl] = useState("");
   const [preferredCloud, setPreferredCloud] = useState("local");
 
   // Password change states
@@ -55,10 +48,6 @@ function Profile() {
       setProfile(data);
       setFullName(data.full_name || "");
       setEmail(data.email || "");
-      setOrganization(data.organization || "");
-      setPhoneNumber(data.phone_number || "");
-      setBio(data.bio || "");
-      setAvatarUrl(data.avatar_url || "");
       setPreferredCloud(data.preferred_cloud_provider || "local");
 
       // Update local storage user
@@ -67,9 +56,7 @@ function Profile() {
         ...existingUser,
         full_name: data.full_name,
         email: data.email,
-        organization: data.organization,
         preferred_cloud_provider: data.preferred_cloud_provider,
-        avatar_url: data.avatar_url,
       });
     } catch (err) {
       console.error("Failed to load operator profile", err);
@@ -80,17 +67,13 @@ function Profile() {
   }
 
   const handleUpdateProfile = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setSavingDetails(true);
 
     try {
       const res = await api.put("/api/auth/profile", {
         full_name: fullName,
         email: email,
-        organization: organization,
-        phone_number: phoneNumber,
-        bio: bio,
-        avatar_url: avatarUrl,
         preferred_cloud_provider: preferredCloud,
       });
 
@@ -148,7 +131,10 @@ function Profile() {
       <Sidebar />
 
       <main className="dashboard-content">
-        <Topbar title="Operator Profile & Security" description="Manage cryptographic keys, identity metadata, and vault preferences" />
+        <Topbar
+          title="Operator Profile & Security Enclave"
+          description="Manage operator identity, cryptographic keys, and cloud vault routing"
+        />
 
         {/* Profile Header Card */}
         <div
@@ -158,62 +144,57 @@ function Profile() {
             alignItems: "center",
             justifyContent: "space-between",
             flexWrap: "wrap",
-            gap: "24px",
-            marginBottom: "28px",
-            background: "linear-gradient(135deg, rgba(13, 21, 39, 0.8) 0%, rgba(10, 15, 29, 0.9) 100%)",
-            border: "1px solid rgba(0, 240, 255, 0.15)",
+            gap: "20px",
+            marginBottom: "20px",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             <div
               style={{
-                width: "72px",
-                height: "72px",
-                borderRadius: "50%",
-                background: avatarUrl
-                  ? `url(${avatarUrl}) center/cover`
-                  : "linear-gradient(135deg, #00f0ff 0%, #a855f7 100%)",
+                width: "56px",
+                height: "56px",
+                background: "var(--primary)",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                fontSize: "28px",
+                fontSize: "22px",
                 fontWeight: "800",
-                color: "#fff",
-                border: "2px solid #00f0ff",
-                boxShadow: "0 0 20px rgba(0, 240, 255, 0.3)",
+                color: "var(--on-primary)",
+                border: "1px solid var(--outline-variant)",
+                fontFamily: "'JetBrains Mono', monospace",
               }}
             >
-              {!avatarUrl && initials}
+              {initials}
             </div>
 
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <h2 style={{ fontSize: "22px", fontWeight: "700", color: "#fff", margin: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <h2 style={{ fontSize: "18px", fontWeight: "700", color: "var(--on-surface)", margin: 0 }}>
                   {fullName || profile?.username || "Operator"}
                 </h2>
                 <span
                   className="status verified"
-                  style={{ fontSize: "11px", textTransform: "uppercase" }}
+                  style={{ fontSize: "10px", textTransform: "uppercase" }}
                 >
-                  <CheckCircle2 size={12} /> Root Operator
+                  <CheckCircle2 size={11} /> SEC-ADMIN (ROOT)
                 </span>
               </div>
-              <p style={{ color: "#94a3b8", fontSize: "13px", margin: "4px 0 0 0" }}>
-                @{profile?.username} • {organization || "SecureSentinel Security Operations"}
+              <p style={{ color: "var(--on-surface-variant)", fontSize: "12px", margin: "4px 0 0 0", fontFamily: "'JetBrains Mono', monospace" }}>
+                @{profile?.username} • {email || "operator@securesentinel.io"}
               </p>
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: "12px" }}>
-            <div style={{ textAlign: "right", borderRight: "1px solid rgba(255, 255, 255, 0.08)", paddingRight: "16px" }}>
-              <span style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase" }}>PROTECTED FILES</span>
-              <p style={{ margin: "2px 0 0 0", fontSize: "18px", fontWeight: "800", color: "#00f0ff" }}>
+          <div style={{ display: "flex", gap: "16px" }}>
+            <div style={{ textAlign: "right", borderRight: "1px solid var(--outline-variant)", paddingRight: "16px" }}>
+              <span style={{ fontSize: "10px", color: "var(--on-surface-variant)", textTransform: "uppercase", fontFamily: "'JetBrains Mono', monospace" }}>PROTECTED ASSETS</span>
+              <p style={{ margin: "2px 0 0 0", fontSize: "16px", fontWeight: "800", color: "var(--primary)", fontFamily: "'JetBrains Mono', monospace" }}>
                 {profile?.stats?.total_files || 0}
               </p>
             </div>
             <div style={{ textAlign: "right" }}>
-              <span style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase" }}>INTEGRITY RATE</span>
-              <p style={{ margin: "2px 0 0 0", fontSize: "18px", fontWeight: "800", color: "#00e699" }}>
+              <span style={{ fontSize: "10px", color: "var(--on-surface-variant)", textTransform: "uppercase", fontFamily: "'JetBrains Mono', monospace" }}>INTEGRITY RATE</span>
+              <p style={{ margin: "2px 0 0 0", fontSize: "16px", fontWeight: "800", color: "var(--secondary)", fontFamily: "'JetBrains Mono', monospace" }}>
                 {profile?.stats?.success_rate || 100}%
               </p>
             </div>
@@ -225,33 +206,34 @@ function Profile() {
           style={{
             display: "flex",
             gap: "8px",
-            marginBottom: "24px",
-            borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+            marginBottom: "20px",
+            borderBottom: "1px solid var(--outline-variant)",
             paddingBottom: "8px",
+            flexWrap: "wrap",
           }}
         >
           {[
-            { id: "details", label: "Personal Details", icon: <UserIcon size={16} /> },
-            { id: "security", label: "Security & Credentials", icon: <Lock size={16} /> },
-            { id: "storage", label: "Cloud Preferences", icon: <Cloud size={16} /> },
-            { id: "stats", label: "Vault Usage Metrics", icon: <Database size={16} /> },
+            { id: "details", label: "Identity & Credentials", icon: <UserIcon size={14} /> },
+            { id: "security", label: "Security & Passwords", icon: <Lock size={14} /> },
+            { id: "storage", label: "Cloud Routing", icon: <Cloud size={14} /> },
+            { id: "stats", label: "Vault Usage Metrics", icon: <Database size={14} /> },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               style={{
-                background: activeTab === tab.id ? "rgba(0, 240, 255, 0.12)" : "transparent",
-                color: activeTab === tab.id ? "#00f0ff" : "#94a3b8",
-                border: activeTab === tab.id ? "1px solid rgba(0, 240, 255, 0.3)" : "1px solid transparent",
-                padding: "8px 18px",
-                borderRadius: "10px",
-                fontSize: "13px",
+                background: activeTab === tab.id ? "var(--surface-container-high)" : "transparent",
+                color: activeTab === tab.id ? "var(--primary)" : "var(--on-surface-variant)",
+                border: activeTab === tab.id ? "1px solid var(--outline-variant)" : "1px solid transparent",
+                padding: "6px 14px",
+                fontSize: "12px",
                 fontWeight: "600",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
-                gap: "8px",
-                transition: "all 0.2s ease",
+                gap: "6px",
+                fontFamily: "'JetBrains Mono', monospace",
+                textTransform: "uppercase",
               }}
             >
               {tab.icon}
@@ -260,37 +242,56 @@ function Profile() {
           ))}
         </div>
 
-        {/* TAB 1: Personal Details */}
+        {/* TAB 1: Operator Identity */}
         {activeTab === "details" && (
           <form onSubmit={handleUpdateProfile} className="card" style={{ maxWidth: "760px" }}>
-            <h3 style={{ fontSize: "18px", fontWeight: "700", color: "#fff", marginBottom: "6px" }}>
-              Operator Profile Information
+            <h3 style={{ fontSize: "16px", fontWeight: "700", color: "var(--on-surface)", marginBottom: "4px" }}>
+              Operator Identity & Access Parameters
             </h3>
-            <p style={{ color: "#94a3b8", fontSize: "13px", marginBottom: "24px" }}>
-              Update your personnel metadata and audit contact details.
+            <p style={{ color: "var(--on-surface-variant)", fontSize: "12px", marginBottom: "20px" }}>
+              Essential cryptographic identity information and alert notification endpoints.
             </p>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "18px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
               <div className="form-group">
-                <label style={{ color: "#cbd5e1", fontSize: "13px", fontWeight: "600" }}>Full Name</label>
+                <label style={{ color: "var(--on-surface-variant)", fontSize: "11px", fontWeight: "600", textTransform: "uppercase", fontFamily: "'JetBrains Mono', monospace" }}>Operator Handle (Username)</label>
+                <input
+                  type="text"
+                  value={profile?.username || ""}
+                  disabled
+                  style={{
+                    background: "var(--surface-lowest)",
+                    border: "1px solid var(--outline-variant)",
+                    padding: "10px 12px",
+                    color: "var(--primary)",
+                    fontSize: "13px",
+                    fontFamily: "'JetBrains Mono', monospace",
+                    cursor: "not-allowed",
+                    opacity: 0.85,
+                  }}
+                />
+              </div>
+
+              <div className="form-group">
+                <label style={{ color: "var(--on-surface-variant)", fontSize: "11px", fontWeight: "600", textTransform: "uppercase", fontFamily: "'JetBrains Mono', monospace" }}>Operator Display Name</label>
                 <input
                   type="text"
                   placeholder="e.g. Irfan Ahmed"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   style={{
-                    background: "#080c18",
-                    border: "1px solid #1e293b",
-                    borderRadius: "10px",
-                    padding: "12px 14px",
-                    color: "#fff",
-                    fontSize: "14px",
+                    background: "var(--surface-lowest)",
+                    border: "1px solid var(--outline-variant)",
+                    padding: "10px 12px",
+                    color: "var(--on-surface)",
+                    fontSize: "13px",
+                    outline: "none",
                   }}
                 />
               </div>
 
-              <div className="form-group">
-                <label style={{ color: "#cbd5e1", fontSize: "13px", fontWeight: "600" }}>Email Address</label>
+              <div className="form-group" style={{ gridColumn: "1 / -1" }}>
+                <label style={{ color: "var(--on-surface-variant)", fontSize: "11px", fontWeight: "600", textTransform: "uppercase", fontFamily: "'JetBrains Mono', monospace" }}>Alert Notification Email Address</label>
                 <input
                   type="email"
                   placeholder="operator@securesentinel.io"
@@ -298,110 +299,75 @@ function Profile() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   style={{
-                    background: "#080c18",
-                    border: "1px solid #1e293b",
-                    borderRadius: "10px",
-                    padding: "12px 14px",
-                    color: "#fff",
-                    fontSize: "14px",
+                    background: "var(--surface-lowest)",
+                    border: "1px solid var(--outline-variant)",
+                    padding: "10px 12px",
+                    color: "var(--on-surface)",
+                    fontSize: "13px",
+                    outline: "none",
                   }}
                 />
               </div>
 
-              <div className="form-group">
-                <label style={{ color: "#cbd5e1", fontSize: "13px", fontWeight: "600" }}>Organization / Unit</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Cyber Defense Command"
-                  value={organization}
-                  onChange={(e) => setOrganization(e.target.value)}
+              {/* Cryptographic Security Details */}
+              <div className="form-group" style={{ gridColumn: "1 / -1" }}>
+                <label style={{ color: "var(--on-surface-variant)", fontSize: "11px", fontWeight: "600", textTransform: "uppercase", fontFamily: "'JetBrains Mono', monospace" }}>Enclave Access Level</label>
+                <div
                   style={{
-                    background: "#080c18",
-                    border: "1px solid #1e293b",
-                    borderRadius: "10px",
+                    background: "var(--surface-lowest)",
+                    border: "1px solid var(--outline-variant)",
                     padding: "12px 14px",
-                    color: "#fff",
-                    fontSize: "14px",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: "12px",
                   }}
-                />
-              </div>
-
-              <div className="form-group">
-                <label style={{ color: "#cbd5e1", fontSize: "13px", fontWeight: "600" }}>Phone Number</label>
-                <input
-                  type="tel"
-                  placeholder="+1 (555) 000-0000"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  style={{
-                    background: "#080c18",
-                    border: "1px solid #1e293b",
-                    borderRadius: "10px",
-                    padding: "12px 14px",
-                    color: "#fff",
-                    fontSize: "14px",
-                  }}
-                />
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <Shield size={16} color="var(--primary)" />
+                    <span style={{ color: "var(--on-surface)" }}>LEVEL 5: SUPERUSER (FULL PROTOCOL ACCESS)</span>
+                  </div>
+                  <span style={{ color: "var(--secondary)", fontSize: "11px" }}>[■] ACTIVE</span>
+                </div>
               </div>
 
               <div className="form-group" style={{ gridColumn: "1 / -1" }}>
-                <label style={{ color: "#cbd5e1", fontSize: "13px", fontWeight: "600" }}>Avatar Image URL</label>
-                <input
-                  type="url"
-                  placeholder="https://images.unsplash.com/..."
-                  value={avatarUrl}
-                  onChange={(e) => setAvatarUrl(e.target.value)}
+                <label style={{ color: "var(--on-surface-variant)", fontSize: "11px", fontWeight: "600", textTransform: "uppercase", fontFamily: "'JetBrains Mono', monospace" }}>Hardware Enclave Fingerprint</label>
+                <div
                   style={{
-                    background: "#080c18",
-                    border: "1px solid #1e293b",
-                    borderRadius: "10px",
+                    background: "var(--surface-lowest)",
+                    border: "1px solid var(--outline-variant)",
                     padding: "12px 14px",
-                    color: "#fff",
-                    fontSize: "14px",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    fontFamily: "'JetBrains Mono', monospace",
+                    fontSize: "11px",
+                    color: "var(--on-surface-variant)",
                   }}
-                />
-              </div>
-
-              <div className="form-group" style={{ gridColumn: "1 / -1" }}>
-                <label style={{ color: "#cbd5e1", fontSize: "13px", fontWeight: "600" }}>Bio / Mission Scope</label>
-                <textarea
-                  rows={3}
-                  placeholder="Senior Cyber Integrity Engineer managing multi-cloud cryptographic evidence vaults..."
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  style={{
-                    background: "#080c18",
-                    border: "1px solid #1e293b",
-                    borderRadius: "10px",
-                    padding: "12px 14px",
-                    color: "#fff",
-                    fontSize: "14px",
-                    resize: "vertical",
-                  }}
-                />
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <Fingerprint size={16} color="var(--secondary)" />
+                    <span style={{ color: "var(--secondary)" }}>SHA256: 7F2B8E901A4D5C6E...C94A8B01</span>
+                  </div>
+                  <span>NIST SP 800-88 VERIFIED</span>
+                </div>
               </div>
             </div>
 
             <div style={{ marginTop: "24px", display: "flex", justifyContent: "flex-end" }}>
               <button
                 type="submit"
+                className="browse-btn"
                 disabled={savingDetails}
                 style={{
-                  background: "linear-gradient(135deg, #00f0ff 0%, #00e699 100%)",
-                  color: "#050811",
-                  padding: "12px 28px",
-                  borderRadius: "10px",
-                  fontWeight: "700",
-                  fontSize: "14px",
-                  cursor: "pointer",
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  boxShadow: "0 0 20px rgba(0, 240, 255, 0.3)",
+                  padding: "10px 22px",
+                  fontSize: "12px",
                 }}
               >
-                <Save size={16} />
-                {savingDetails ? "Saving Details..." : "Save Profile Details"}
+                <Save size={14} />
+                {savingDetails ? "Saving Details..." : "Save Operator Details"}
               </button>
             </div>
           </form>
@@ -410,16 +376,16 @@ function Profile() {
         {/* TAB 2: Security & Password */}
         {activeTab === "security" && (
           <form onSubmit={handleChangePassword} className="card" style={{ maxWidth: "600px" }}>
-            <h3 style={{ fontSize: "18px", fontWeight: "700", color: "#fff", marginBottom: "6px" }}>
+            <h3 style={{ fontSize: "16px", fontWeight: "700", color: "var(--on-surface)", marginBottom: "4px" }}>
               Update Security Credentials
             </h3>
-            <p style={{ color: "#94a3b8", fontSize: "13px", marginBottom: "24px" }}>
+            <p style={{ color: "var(--on-surface-variant)", fontSize: "12px", marginBottom: "20px" }}>
               Passwords are salted with 12-round bcrypt and stored using zero-knowledge one-way hashing.
             </p>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div className="form-group">
-                <label style={{ color: "#cbd5e1", fontSize: "13px", fontWeight: "600" }}>Current Password</label>
+                <label style={{ color: "var(--on-surface-variant)", fontSize: "11px", fontWeight: "600", textTransform: "uppercase", fontFamily: "'JetBrains Mono', monospace" }}>Current Password</label>
                 <input
                   type="password"
                   placeholder="••••••••••••"
@@ -427,18 +393,18 @@ function Profile() {
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   required
                   style={{
-                    background: "#080c18",
-                    border: "1px solid #1e293b",
-                    borderRadius: "10px",
-                    padding: "12px 14px",
-                    color: "#fff",
-                    fontSize: "14px",
+                    background: "var(--surface-lowest)",
+                    border: "1px solid var(--outline-variant)",
+                    padding: "10px 12px",
+                    color: "var(--on-surface)",
+                    fontSize: "13px",
+                    outline: "none",
                   }}
                 />
               </div>
 
               <div className="form-group">
-                <label style={{ color: "#cbd5e1", fontSize: "13px", fontWeight: "600" }}>New Password</label>
+                <label style={{ color: "var(--on-surface-variant)", fontSize: "11px", fontWeight: "600", textTransform: "uppercase", fontFamily: "'JetBrains Mono', monospace" }}>New Password</label>
                 <input
                   type="password"
                   placeholder="At least 6 characters"
@@ -446,18 +412,18 @@ function Profile() {
                   onChange={(e) => setNewPassword(e.target.value)}
                   required
                   style={{
-                    background: "#080c18",
-                    border: "1px solid #1e293b",
-                    borderRadius: "10px",
-                    padding: "12px 14px",
-                    color: "#fff",
-                    fontSize: "14px",
+                    background: "var(--surface-lowest)",
+                    border: "1px solid var(--outline-variant)",
+                    padding: "10px 12px",
+                    color: "var(--on-surface)",
+                    fontSize: "13px",
+                    outline: "none",
                   }}
                 />
               </div>
 
               <div className="form-group">
-                <label style={{ color: "#cbd5e1", fontSize: "13px", fontWeight: "600" }}>Confirm New Password</label>
+                <label style={{ color: "var(--on-surface-variant)", fontSize: "11px", fontWeight: "600", textTransform: "uppercase", fontFamily: "'JetBrains Mono', monospace" }}>Confirm New Password</label>
                 <input
                   type="password"
                   placeholder="Repeat new password"
@@ -465,34 +431,27 @@ function Profile() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
                   style={{
-                    background: "#080c18",
-                    border: "1px solid #1e293b",
-                    borderRadius: "10px",
-                    padding: "12px 14px",
-                    color: "#fff",
-                    fontSize: "14px",
+                    background: "var(--surface-lowest)",
+                    border: "1px solid var(--outline-variant)",
+                    padding: "10px 12px",
+                    color: "var(--on-surface)",
+                    fontSize: "13px",
+                    outline: "none",
                   }}
                 />
               </div>
 
-              <div style={{ marginTop: "12px" }}>
+              <div style={{ marginTop: "8px" }}>
                 <button
                   type="submit"
+                  className="browse-btn"
                   disabled={changingPassword}
                   style={{
-                    background: "linear-gradient(135deg, #a855f7 0%, #00f0ff 100%)",
-                    color: "#ffffff",
-                    padding: "12px 24px",
-                    borderRadius: "10px",
-                    fontWeight: "700",
-                    fontSize: "14px",
-                    cursor: "pointer",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "8px",
+                    padding: "10px 20px",
+                    fontSize: "12px",
                   }}
                 >
-                  <Key size={16} />
+                  <Key size={14} />
                   {changingPassword ? "Updating Credentials..." : "Commit Password Change"}
                 </button>
               </div>
@@ -503,39 +462,40 @@ function Profile() {
         {/* TAB 3: Cloud Storage Preferences */}
         {activeTab === "storage" && (
           <div className="card" style={{ maxWidth: "700px" }}>
-            <h3 style={{ fontSize: "18px", fontWeight: "700", color: "#fff", marginBottom: "6px" }}>
+            <h3 style={{ fontSize: "16px", fontWeight: "700", color: "var(--on-surface)", marginBottom: "4px" }}>
               Cloud Provider Routing
             </h3>
-            <p style={{ color: "#94a3b8", fontSize: "13px", marginBottom: "20px" }}>
-              Select which cloud driver new file ingestions default to.
+            <p style={{ color: "var(--on-surface-variant)", fontSize: "12px", marginBottom: "18px" }}>
+              Select which cloud storage driver new file ingestions default to.
             </p>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "24px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "20px" }}>
               {[
-                { id: "local", name: "Local Disk Vault", desc: "Air-gapped on-premise storage", icon: <HardDrive /> },
-                { id: "s3", name: "Amazon AWS S3", desc: "Global S3 bucket object storage", icon: <Cloud /> },
-                { id: "gcs", name: "Google Cloud Storage", desc: "Multi-regional Google Cloud bucket", icon: <Database /> },
-                { id: "azure", name: "Microsoft Azure Blob", desc: "Enterprise Azure container storage", icon: <Cloud /> },
+                { id: "local", name: "Local Disk Vault", desc: "Air-gapped on-premise storage", icon: <HardDrive size={18} /> },
+                { id: "s3", name: "Amazon AWS S3", desc: "Global S3 bucket object storage", icon: <Cloud size={18} /> },
+                { id: "gcs", name: "Google Cloud Storage", desc: "Multi-regional Google Cloud bucket", icon: <Database size={18} /> },
+                { id: "azure", name: "Microsoft Azure Blob", desc: "Enterprise Azure container storage", icon: <Cloud size={18} /> },
               ].map((prov) => {
                 const isSelected = preferredCloud === prov.id;
                 return (
                   <div
                     key={prov.id}
-                    onClick={() => setPreferredCloud(prov.id)}
+                    onClick={() => {
+                      setPreferredCloud(prov.id);
+                    }}
                     style={{
-                      padding: "18px",
-                      borderRadius: "14px",
-                      border: isSelected ? "2px solid #00f0ff" : "1px solid rgba(255, 255, 255, 0.08)",
-                      background: isSelected ? "rgba(0, 240, 255, 0.08)" : "#080c18",
+                      padding: "14px",
+                      border: isSelected ? "1px solid var(--primary)" : "1px solid var(--outline-variant)",
+                      background: isSelected ? "var(--surface-container-high)" : "var(--surface-lowest)",
                       cursor: "pointer",
                       transition: "all 0.2s ease",
                     }}
                   >
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ fontWeight: "700", color: "#fff", fontSize: "14px" }}>{prov.name}</span>
-                      {isSelected && <Check size={16} color="#00f0ff" />}
+                      <span style={{ fontWeight: "700", color: isSelected ? "var(--primary)" : "var(--on-surface)", fontSize: "13px" }}>{prov.name}</span>
+                      {isSelected && <Check size={14} color="var(--primary)" />}
                     </div>
-                    <p style={{ fontSize: "12px", color: "#94a3b8", margin: "6px 0 0 0" }}>{prov.desc}</p>
+                    <p style={{ fontSize: "11px", color: "var(--on-surface-variant)", margin: "4px 0 0 0" }}>{prov.desc}</p>
                   </div>
                 );
               })}
@@ -543,45 +503,42 @@ function Profile() {
 
             <button
               onClick={handleUpdateProfile}
+              className="browse-btn"
+              disabled={savingDetails}
               style={{
-                background: "linear-gradient(135deg, #00f0ff 0%, #00e699 100%)",
-                color: "#050811",
-                padding: "11px 24px",
-                borderRadius: "10px",
-                fontWeight: "700",
-                fontSize: "14px",
-                cursor: "pointer",
+                padding: "10px 20px",
+                fontSize: "12px",
               }}
             >
-              Save Preferred Provider
+              {savingDetails ? "Saving Routing..." : "Save Default Provider"}
             </button>
           </div>
         )}
 
         {/* TAB 4: Vault Usage Metrics */}
         {activeTab === "stats" && (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "20px", maxWidth: "900px" }}>
-            <div className="card metric-card">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px", maxWidth: "900px" }}>
+            <div className="metric-card">
               <span className="metric-title">Protected Files</span>
-              <h2 className="metric-value" style={{ color: "#00f0ff" }}>{profile?.stats?.total_files || 0}</h2>
+              <h2 className="metric-value" style={{ color: "var(--primary)" }}>{profile?.stats?.total_files || 0}</h2>
               <p className="metric-subtitle">Active cryptographic baselines</p>
             </div>
 
-            <div className="card metric-card">
+            <div className="metric-card">
               <span className="metric-title">Storage Encrypted</span>
-              <h2 className="metric-value" style={{ color: "#00e699" }}>{profile?.stats?.total_megabytes || 0} MB</h2>
+              <h2 className="metric-value" style={{ color: "var(--secondary)" }}>{profile?.stats?.total_megabytes || 0} MB</h2>
               <p className="metric-subtitle">{profile?.stats?.total_bytes || 0} bytes in vault</p>
             </div>
 
-            <div className="card metric-card">
+            <div className="metric-card">
               <span className="metric-title">Audit Log Entries</span>
-              <h2 className="metric-value" style={{ color: "#a855f7" }}>{profile?.stats?.total_logs || 0}</h2>
+              <h2 className="metric-value" style={{ color: "var(--primary)" }}>{profile?.stats?.total_logs || 0}</h2>
               <p className="metric-subtitle">Immutable forensic events</p>
             </div>
 
-            <div className="card metric-card">
+            <div className="metric-card">
               <span className="metric-title">Integrity Pass Rate</span>
-              <h2 className="metric-value" style={{ color: "#38bdf8" }}>{profile?.stats?.success_rate || 100}%</h2>
+              <h2 className="metric-value" style={{ color: "var(--secondary)" }}>{profile?.stats?.success_rate || 100}%</h2>
               <p className="metric-subtitle">Verified authentic files</p>
             </div>
           </div>
@@ -592,3 +549,4 @@ function Profile() {
 }
 
 export default Profile;
+

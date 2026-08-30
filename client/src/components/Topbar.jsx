@@ -1,11 +1,11 @@
 import { useLocation, Link } from "react-router-dom";
-import { Cloud } from "lucide-react";
+import { Cloud, Radio } from "lucide-react";
 import { getAuthUser } from "../services/api";
 
 const routeMeta = {
   "/dashboard": {
     title: "Security Operations Dashboard",
-    tag: "SOC DASHBOARD",
+    tag: "SOC TELEMETRY",
     desc: "Real-time cryptographic file integrity monitoring and threat analysis",
   },
   "/files": {
@@ -59,7 +59,7 @@ function Topbar({ title, description }) {
     desc: description || "Cryptographic file integrity and vault monitoring platform",
   };
 
-  const displayName = user.full_name || user.username || localStorage.getItem("username") || "Operator";
+  const displayName = user.full_name || user.username || localStorage.getItem("username") || "Operator-042";
   const initial = displayName.charAt(0).toUpperCase();
   const activeProvider = (user.preferred_cloud_provider || user.active_cloud_provider || "local").toUpperCase();
 
@@ -68,29 +68,40 @@ function Topbar({ title, description }) {
       <div>
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <p className="dashboard-tag">
-            <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#00f0ff", display: "inline-block" }} />
+            <span style={{ width: "6px", height: "6px", background: "var(--primary)", display: "inline-block" }} />
             {meta.tag}
           </p>
 
-          <span style={{ color: "#334155", fontSize: "12px" }}>•</span>
+          <span style={{ color: "var(--outline-variant)", fontSize: "12px" }}>•</span>
 
           <div
             style={{
               display: "inline-flex",
               alignItems: "center",
               gap: "6px",
-              background: "rgba(0, 230, 153, 0.1)",
-              border: "1px solid rgba(0, 230, 153, 0.25)",
+              background: "var(--surface-lowest)",
+              border: "1px solid var(--outline-variant)",
               padding: "2px 8px",
-              borderRadius: "999px",
-              fontSize: "11px",
-              color: "#00e699",
+              fontSize: "10px",
+              color: "var(--secondary)",
               fontFamily: "'JetBrains Mono', monospace",
+              fontWeight: "700",
             }}
           >
-            <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: "#00e699", boxShadow: "0 0 6px #00e699" }} />
-            ZERO DRIFT
+            <span style={{ width: "6px", height: "6px", background: "var(--secondary)", display: "inline-block" }} />
+            [■] ZERO DRIFT
           </div>
+
+          <span
+            style={{
+              fontSize: "11px",
+              fontFamily: "'JetBrains Mono', monospace",
+              color: "var(--on-surface-variant)",
+            }}
+            className="animate-pulse"
+          >
+            SCANNING NODE_08...
+          </span>
         </div>
 
         <h1 className="dashboard-title">
@@ -102,7 +113,7 @@ function Topbar({ title, description }) {
         </p>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
         {/* Quick Cloud Switcher Pill */}
         <Link
           to="/storage"
@@ -110,36 +121,40 @@ function Topbar({ title, description }) {
             display: "flex",
             alignItems: "center",
             gap: "8px",
-            background: "rgba(13, 21, 39, 0.6)",
-            border: "1px solid rgba(0, 240, 255, 0.2)",
-            padding: "8px 14px",
-            borderRadius: "10px",
-            fontSize: "12px",
-            color: "#94a3b8",
+            background: "var(--surface-container)",
+            border: "1px solid var(--outline-variant)",
+            padding: "6px 12px",
+            fontSize: "11px",
+            color: "var(--on-surface-variant)",
+            fontFamily: "'JetBrains Mono', monospace",
             transition: "all 0.2s ease",
           }}
         >
-          <Cloud size={14} color="#00f0ff" />
+          <Cloud size={13} color="var(--primary)" />
           <span>TARGET:</span>
-          <strong style={{ color: "#00f0ff" }}>{activeProvider}</strong>
+          <strong style={{ color: "var(--primary)" }}>{activeProvider}</strong>
         </Link>
 
-        {/* User Avatar */}
+        {/* User Badge */}
         <Link
           to="/profile"
           className="dashboard-user"
           style={{
             textDecoration: "none",
-            transition: "transform 0.2s ease",
+            transition: "background 0.2s ease",
           }}
         >
-          <div className="user-avatar">
-            {initial}
+          <div style={{ textAlign: "right" }}>
+            <div style={{ fontSize: "11px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", color: "var(--on-surface)" }}>
+              {displayName}
+            </div>
+            <div style={{ fontSize: "10px", color: "var(--primary)", fontFamily: "'JetBrains Mono', monospace" }}>
+              SEC-ADMIN
+            </div>
           </div>
 
-          <div>
-            <h4>{displayName}</h4>
-            <span>{user.organization || "Root Operator"}</span>
+          <div className="user-avatar">
+            {initial}
           </div>
         </Link>
       </div>
@@ -148,3 +163,4 @@ function Topbar({ title, description }) {
 }
 
 export default Topbar;
+

@@ -6,7 +6,7 @@ from sqlalchemy import func
 
 from server.database import get_db, engine
 from server.models import User, FileRecord, AuditLog
-from server.auth.security import get_current_user
+from server.auth.security import get_current_user, get_current_user_optional
 from server.storage.factory import get_storage_provider
 
 router = APIRouter()
@@ -153,7 +153,7 @@ def get_analytics(
 @router.get("/health")
 def health_check(
     db: Session = Depends(get_db),
-    current_user: Optional[User] = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_current_user_optional),
 ):
     # Check Database connection
     db_status = "Connected"

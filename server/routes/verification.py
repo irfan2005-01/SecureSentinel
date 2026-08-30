@@ -35,23 +35,16 @@ async def verify_file(
 
     current_hash = hasher.hexdigest()
 
-    # Query file record for current user
+    # Query file record for current user by exact filename (latest upload first)
     record = (
         db.query(FileRecord)
         .filter(
             FileRecord.user_id == current_user.id,
             FileRecord.filename == safe_filename,
         )
+        .order_by(FileRecord.uploaded_at.desc())
         .first()
     )
-
-    if not record:
-        # Fallback: check if the hash or filename matches any other file for this user
-        record = (
-            db.query(FileRecord)
-            .filter(FileRecord.user_id == current_user.id, FileRecord.sha256 == current_hash)
-            .first()
-        )
 
     if not record:
         log = AuditLog(
@@ -66,7 +59,7 @@ async def verify_file(
 
         return {
             "status": "Not Found",
-            "message": "No baseline record found for this file in your vault.",
+            "message": f"No baseline cryptographic record found for '{safe_filename}' in your vault.",
             "filename": safe_filename,
             "sha256": current_hash,
         }
@@ -78,7 +71,7 @@ async def verify_file(
             action="VERIFY",
             filename=safe_filename,
             status="Verified",
-            details=f"Cryptographic match confirmed for {safe_filename}",
+            details=f"Cryptographic match confirmed for {safe_filename} (SHA: {current_hash[:8]}...)",
         )
         db.add(log)
         db.commit()
@@ -87,6 +80,7 @@ async def verify_file(
             "status": "Verified",
             "message": "File integrity verified. SHA-256 matches the stored cryptographic signature.",
             "filename": record.filename,
+            "file_id": record.id,
             "sha256": current_hash,
             "stored_hash": record.sha256,
             "storage_provider": record.storage_provider,
@@ -108,10 +102,51 @@ async def verify_file(
         "status": "Tampered",
         "message": "WARNING! Cryptographic signature mismatch. The file content has been altered or tampered with.",
         "filename": safe_filename,
+        "file_id": record.id,
         "sha256": current_hash,
         "expected_sha256": record.sha256,
         "storage_provider": record.storage_provider,
     }
+
+
+@router.get("/report/id/{file_id}")
+def download_verification_report_by_id(
+    file_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    record = (
+        db.query(FileRecord)
+        .filter(
+            FileRecord.user_id == current_user.id,
+            FileRecord.id == file_id,
+        )
+        .first()
+    )
+
+    if not record:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No record found for file ID {file_id}",
+        )
+
+    report_dir = Path("reports")
+    report_dir.mkdir(parents=True, exist_ok=True)
+    pdf_path = str(report_dir / f"{record.id}_{record.filename}_report.pdf")
+
+    generate_report(
+        filename=record.filename,
+        sha256=record.sha256,
+        status=record.status,
+        output_path=pdf_path,
+        storage_provider=record.storage_provider,
+    )
+
+    return FileResponse(
+        path=pdf_path,
+        media_type="application/pdf",
+        filename=f"{record.filename}_Verification_Report.pdf",
+    )
 
 
 @router.get("/report/{filename:path}")
@@ -127,6 +162,7 @@ def download_verification_report(
             FileRecord.user_id == current_user.id,
             FileRecord.filename == safe_name,
         )
+        .order_by(FileRecord.uploaded_at.desc())
         .first()
     )
 
@@ -153,3 +189,4 @@ def download_verification_report(
         media_type="application/pdf",
         filename=f"{record.filename}_Verification_Report.pdf",
     )
+

@@ -2,7 +2,6 @@ import { useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   UploadCloud,
-
   CheckCircle2,
   Cloud,
   Copy,
@@ -10,9 +9,9 @@ import {
   Download,
   Trash2,
   FileText,
-
-
-
+  AlertTriangle,
+  Flame,
+  Zap,
 } from "lucide-react";
 import { toast } from "react-toastify";
 import api, { getAuthUser } from "../services/api";
@@ -53,7 +52,7 @@ function UploadCard() {
     try {
       const res = await api.get("/api/files");
       setFilesList(res.data || []);
-    } catch {
+    } catch (err) {
       console.error("Failed to load files", err);
     } finally {
       setLoadingFiles(false);
@@ -83,9 +82,9 @@ function UploadCard() {
       });
 
       setUploadResult(res.data);
-      toast.success(`"${file.name}" cryptographically anchored to ${activeProvider.toUpperCase()} vault!`);
+      toast.success(`"${file.name}" anchored to ${activeProvider.toUpperCase()} vault!`);
       await loadFiles();
-    } catch {
+    } catch (err) {
       console.error(err);
       const msg = err.response?.data?.detail || "File upload failed";
       toast.error(msg);
@@ -131,32 +130,69 @@ function UploadCard() {
     }
   };
 
+  // One-Click Hackathon Tamper Simulation
+  const handleSimulateTamperDemo = async (file) => {
+    try {
+      // Ingest a dummy genuine file if none exists, then verify a mutated version
+      const tamperedBlob = new Blob(
+        [`MUTATED_PAYLOAD_UNAUTHORIZED_TAMPER_INJECTION_${Date.now()}`],
+        { type: "text/plain" }
+      );
+      const tamperedFile = new File([tamperedBlob], file.filename, {
+        type: "text/plain",
+      });
+
+      toast.warning(`[SIMULATION] Sending modified byte stream for '${file.filename}'...`);
+      
+      const formData = new FormData();
+      formData.append("file", tamperedFile);
+      const verifyRes = await api.post("/api/verify/verify", formData);
+      
+      if (verifyRes.data?.status === "Tampered") {
+        toast.error(`🚨 TAMPER ALERT TRIPPED! Cryptographic divergence caught for '${file.filename}'!`);
+        navigate("/verify", { state: { simulatedResult: verifyRes.data } });
+      } else {
+        toast.info("Verification executed.");
+        navigate("/verify");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Tamper simulation failed to run");
+    }
+  };
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
       {/* Ingestion Dropzone Card */}
-      <div className="card upload-card">
+      <div className="card">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
           <div>
             <p className="section-label">Provable Ingestion</p>
-            <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#fff", margin: 0 }}>
+            <h2 style={{ fontSize: "18px", fontWeight: "700", color: "var(--on-surface)", margin: 0 }}>
               Stream & Anchor File Baseline
             </h2>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span style={{ fontSize: "12px", color: "#64748b" }}>TARGET CLOUD:</span>
+            <span style={{ fontSize: "11px", color: "var(--on-surface-variant)", fontFamily: "'JetBrains Mono', monospace" }}>
+              TARGET:
+            </span>
             <span
-              className="status"
               style={{
-                background: "rgba(0, 240, 255, 0.12)",
-                color: "#00f0ff",
-                border: "1px solid rgba(0, 240, 255, 0.3)",
+                background: "var(--surface-lowest)",
+                color: "var(--primary)",
+                border: "1px solid var(--outline-variant)",
                 textTransform: "uppercase",
                 fontWeight: "700",
-                fontSize: "12px",
+                fontSize: "11px",
+                padding: "3px 8px",
+                fontFamily: "'JetBrains Mono', monospace",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
               }}
             >
-              <Cloud size={13} style={{ marginRight: "4px" }} /> {activeProvider}
+              <Cloud size={12} /> {activeProvider}
             </span>
           </div>
         </div>
@@ -177,15 +213,15 @@ function UploadCard() {
             }
           }}
           style={{
-            borderColor: dragActive ? "#00f0ff" : undefined,
-            background: dragActive ? "rgba(0, 240, 255, 0.08)" : undefined,
+            borderColor: dragActive ? "var(--primary)" : undefined,
+            background: dragActive ? "var(--surface-container-high)" : undefined,
             cursor: uploading ? "wait" : "pointer",
           }}
         >
-          <UploadCloud className="upload-icon" size={48} style={{ color: "#00f0ff" }} />
+          <UploadCloud className="upload-icon" size={40} />
 
           <h3>Drag & Drop Binary Assets Here</h3>
-          <p>Continuous 1MB memory chunk-streaming with real-time SHA-256 baseline anchoring</p>
+          <p>Continuous 1MB chunk-streaming with real-time SHA-256 baseline anchoring</p>
 
           <button
             type="button"
@@ -199,8 +235,8 @@ function UploadCard() {
             {uploading ? "Encrypting & Streaming..." : "Browse Local Files"}
           </button>
 
-          <small style={{ display: "block", marginTop: "14px", color: "#64748b", fontSize: "12px" }}>
-            Supports all documents, executables, images, and archives (PDF, DOCX, PNG, ZIP, BIN)
+          <small style={{ display: "block", marginTop: "12px", color: "var(--on-surface-variant)", fontSize: "11px", fontFamily: "'JetBrains Mono', monospace" }}>
+            [SUPPORTS PDF, DOCX, PNG, ZIP, BIN, CSV, JSON]
           </small>
         </div>
 
@@ -217,17 +253,17 @@ function UploadCard() {
 
         {/* Live Upload Progress */}
         {uploading && (
-          <div style={{ marginTop: "20px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", marginBottom: "6px", color: "#cbd5e1" }}>
-              <span>Streaming chunks to {activeProvider.toUpperCase()}...</span>
-              <strong style={{ color: "#00f0ff" }}>{progress}%</strong>
+          <div style={{ marginTop: "16px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginBottom: "4px", color: "var(--on-surface)", fontFamily: "'JetBrains Mono', monospace" }}>
+              <span>STREAMING TO {activeProvider.toUpperCase()}...</span>
+              <strong style={{ color: "var(--primary)" }}>{progress}%</strong>
             </div>
-            <div style={{ width: "100%", height: "8px", background: "#080c18", borderRadius: "999px", overflow: "hidden" }}>
+            <div style={{ width: "100%", height: "6px", background: "var(--surface-lowest)", border: "1px solid var(--outline-variant)", overflow: "hidden" }}>
               <div
                 style={{
                   width: `${progress}%`,
                   height: "100%",
-                  background: "linear-gradient(90deg, #00f0ff, #00e699)",
+                  background: "var(--primary)",
                   transition: "width 0.2s ease",
                 }}
               />
@@ -237,48 +273,51 @@ function UploadCard() {
 
         {/* Post-Upload Hash Badge */}
         {uploadResult && (
-          <div className="card" style={{ marginTop: "24px", background: "rgba(0, 230, 153, 0.05)", border: "1px solid rgba(0, 230, 153, 0.3)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", color: "#00e699", marginBottom: "12px" }}>
-              <CheckCircle2 size={20} />
-              <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "700" }}>Cryptographic Baseline Anchored</h3>
+          <div style={{ marginTop: "20px", background: "var(--surface-container-high)", border: "1px solid var(--secondary)", padding: "16px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "var(--secondary)", marginBottom: "10px" }}>
+              <CheckCircle2 size={18} />
+              <h3 style={{ margin: 0, fontSize: "14px", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                Cryptographic Baseline Anchored
+              </h3>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px", marginBottom: "14px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "10px", marginBottom: "12px" }}>
               <div>
-                <span style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase" }}>FILE</span>
-                <p style={{ margin: "2px 0 0 0", fontWeight: "600", color: "#f8fafc" }}>{uploadResult.filename}</p>
+                <span style={{ fontSize: "10px", color: "var(--on-surface-variant)", textTransform: "uppercase", fontFamily: "'JetBrains Mono', monospace" }}>FILE</span>
+                <p style={{ margin: "2px 0 0 0", fontWeight: "600", color: "var(--on-surface)", fontSize: "13px" }}>{uploadResult.filename}</p>
               </div>
               <div>
-                <span style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase" }}>SIZE</span>
-                <p style={{ margin: "2px 0 0 0", fontWeight: "600", color: "#f8fafc" }}>
+                <span style={{ fontSize: "10px", color: "var(--on-surface-variant)", textTransform: "uppercase", fontFamily: "'JetBrains Mono', monospace" }}>SIZE</span>
+                <p style={{ margin: "2px 0 0 0", fontWeight: "600", color: "var(--on-surface)", fontSize: "13px" }}>
                   {(uploadResult.file_size / 1024).toFixed(1)} KB
                 </p>
               </div>
               <div>
-                <span style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase" }}>STORAGE</span>
-                <p style={{ margin: "2px 0 0 0", fontWeight: "700", color: "#00f0ff", textTransform: "uppercase" }}>
+                <span style={{ fontSize: "10px", color: "var(--on-surface-variant)", textTransform: "uppercase", fontFamily: "'JetBrains Mono', monospace" }}>STORAGE</span>
+                <p style={{ margin: "2px 0 0 0", fontWeight: "700", color: "var(--primary)", textTransform: "uppercase", fontSize: "13px" }}>
                   {uploadResult.storage_provider}
                 </p>
               </div>
             </div>
 
-            <div className="hash-card" style={{ marginBottom: "14px" }}>
+            <div className="hash-card" style={{ marginBottom: "12px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
-                <span style={{ fontSize: "11px", color: "#94a3b8", textTransform: "uppercase" }}>SHA-256 FINGERPRINT</span>
+                <span style={{ fontSize: "10px", color: "var(--on-surface-variant)", textTransform: "uppercase" }}>SHA-256 FINGERPRINT</span>
                 <button
                   type="button"
                   onClick={() => copyHash(uploadResult.sha256)}
                   style={{
                     background: "transparent",
-                    color: "#00f0ff",
+                    color: "var(--primary)",
                     cursor: "pointer",
-                    fontSize: "12px",
+                    fontSize: "11px",
                     display: "flex",
                     alignItems: "center",
                     gap: "4px",
+                    fontFamily: "'JetBrains Mono', monospace",
                   }}
                 >
-                  <Copy size={13} /> Copy
+                  <Copy size={12} /> COPY
                 </button>
               </div>
               <code>{uploadResult.sha256}</code>
@@ -288,13 +327,11 @@ function UploadCard() {
               className="browse-btn"
               onClick={() => navigate("/verify")}
               style={{
-                background: "linear-gradient(135deg, #a855f7 0%, #00f0ff 100%)",
-                color: "#fff",
-                fontSize: "13px",
-                padding: "8px 18px",
+                fontSize: "12px",
+                padding: "8px 16px",
               }}
             >
-              <ShieldCheck size={16} /> Audit File Now
+              <ShieldCheck size={14} /> Audit Baseline in PDP Engine
             </button>
           </div>
         )}
@@ -302,10 +339,10 @@ function UploadCard() {
 
       {/* Vault Files Table */}
       <div className="card">
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
           <div>
             <p className="section-label">Protected Vault</p>
-            <h2 style={{ fontSize: "18px", fontWeight: "700", color: "#fff", margin: 0 }}>
+            <h2 style={{ fontSize: "18px", fontWeight: "700", color: "var(--on-surface)", margin: 0 }}>
               Anchored File Register ({filesList.length})
             </h2>
           </div>
@@ -313,13 +350,14 @@ function UploadCard() {
           <button
             onClick={loadFiles}
             style={{
-              background: "rgba(255, 255, 255, 0.05)",
-              color: "#94a3b8",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              padding: "6px 14px",
-              borderRadius: "8px",
-              fontSize: "12px",
+              background: "var(--surface-container-high)",
+              color: "var(--on-surface)",
+              border: "1px solid var(--outline-variant)",
+              padding: "6px 12px",
+              fontSize: "11px",
+              fontFamily: "'JetBrains Mono', monospace",
               cursor: "pointer",
+              textTransform: "uppercase",
             }}
           >
             Refresh Vault
@@ -327,22 +365,24 @@ function UploadCard() {
         </div>
 
         {loadingFiles ? (
-          <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>Loading vault inventory...</div>
+          <div style={{ textAlign: "center", padding: "30px", color: "var(--on-surface-variant)", fontFamily: "'JetBrains Mono', monospace", fontSize: "12px" }}>
+            SCANNING VAULT INVENTORY...
+          </div>
         ) : filesList.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
-            No files anchored in vault yet. Upload a file above to create your first baseline.
+          <div style={{ textAlign: "center", padding: "30px", color: "var(--on-surface-variant)", fontFamily: "'JetBrains Mono', monospace", fontSize: "12px" }}>
+            NO FILES ANCHORED IN VAULT. UPLOAD A FILE ABOVE TO ESTABLISH CRYPTOGRAPHIC BASELINE.
           </div>
         ) : (
           <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "13px" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "12px" }}>
               <thead>
-                <tr style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.08)", color: "#64748b" }}>
-                  <th style={{ padding: "12px 14px" }}>File Name</th>
-                  <th style={{ padding: "12px 14px" }}>Storage Target</th>
-                  <th style={{ padding: "12px 14px" }}>Size</th>
-                  <th style={{ padding: "12px 14px" }}>SHA-256 Baseline</th>
-                  <th style={{ padding: "12px 14px" }}>Status</th>
-                  <th style={{ padding: "12px 14px", textAlign: "right" }}>Actions</th>
+                <tr style={{ borderBottom: "1px solid var(--outline-variant)", color: "var(--on-surface-variant)", fontFamily: "'JetBrains Mono', monospace" }}>
+                  <th style={{ padding: "10px 12px" }}>FILE NAME</th>
+                  <th style={{ padding: "10px 12px" }}>STORAGE</th>
+                  <th style={{ padding: "10px 12px" }}>SIZE</th>
+                  <th style={{ padding: "10px 12px" }}>SHA-256 BASELINE</th>
+                  <th style={{ padding: "10px 12px" }}>STATUS</th>
+                  <th style={{ padding: "10px 12px", textAlign: "right" }}>DEMO & ACTIONS</th>
                 </tr>
               </thead>
               <tbody>
@@ -350,48 +390,48 @@ function UploadCard() {
                   <tr
                     key={file.id}
                     style={{
-                      borderBottom: "1px solid rgba(255, 255, 255, 0.04)",
+                      borderBottom: "1px solid var(--outline-subtle)",
                       transition: "background 0.2s ease",
                     }}
                   >
-                    <td style={{ padding: "14px", fontWeight: "600", color: "#fff" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                        <FileText size={16} color="#00f0ff" />
+                    <td style={{ padding: "12px", fontWeight: "600", color: "var(--on-surface)" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <FileText size={15} color="var(--primary)" />
                         {file.filename}
                       </div>
                     </td>
-                    <td style={{ padding: "14px" }}>
+                    <td style={{ padding: "12px" }}>
                       <span
                         style={{
-                          background: "rgba(0, 240, 255, 0.08)",
-                          color: "#00f0ff",
-                          border: "1px solid rgba(0, 240, 255, 0.2)",
-                          padding: "3px 8px",
-                          borderRadius: "6px",
-                          fontSize: "11px",
+                          background: "var(--surface-lowest)",
+                          color: "var(--primary)",
+                          border: "1px solid var(--outline-variant)",
+                          padding: "2px 6px",
+                          fontSize: "10px",
                           fontWeight: "700",
+                          fontFamily: "'JetBrains Mono', monospace",
                           textTransform: "uppercase",
                         }}
                       >
                         {file.storage_provider}
                       </span>
                     </td>
-                    <td style={{ padding: "14px", color: "#94a3b8" }}>
+                    <td style={{ padding: "12px", color: "var(--on-surface-variant)", fontFamily: "'JetBrains Mono', monospace" }}>
                       {(file.file_size / 1024).toFixed(1)} KB
                     </td>
-                    <td style={{ padding: "14px" }}>
+                    <td style={{ padding: "12px" }}>
                       <code
                         onClick={() => copyHash(file.sha256)}
                         title="Click to copy hash"
                         style={{
-                          background: "#080c18",
-                          padding: "4px 8px",
-                          borderRadius: "6px",
-                          color: "#38bdf8",
+                          background: "var(--surface-lowest)",
+                          padding: "3px 6px",
+                          border: "1px solid var(--outline-variant)",
+                          color: "var(--primary)",
                           fontSize: "11px",
                           cursor: "pointer",
                           display: "inline-block",
-                          maxWidth: "180px",
+                          maxWidth: "160px",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
                           whiteSpace: "nowrap",
@@ -400,61 +440,79 @@ function UploadCard() {
                         {file.sha256}
                       </code>
                     </td>
-                    <td style={{ padding: "14px" }}>
+                    <td style={{ padding: "12px" }}>
                       <span className={file.status === "Verified" ? "status verified" : "status tampered"}>
-                        {file.status}
+                        {file.status === "Verified" ? "[■] VERIFIED" : "[▲] TAMPERED"}
                       </span>
                     </td>
-                    <td style={{ padding: "14px", textAlign: "right" }}>
-                      <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
+                    <td style={{ padding: "12px", textAlign: "right" }}>
+                      <div style={{ display: "flex", justifyContent: "flex-end", gap: "6px" }}>
+                        {/* Live Judge Demo Trigger Button */}
                         <button
-                          onClick={() => handleDownload(file.id, file.filename)}
-                          title="Download file"
+                          onClick={() => handleSimulateTamperDemo(file)}
+                          title="Simulate 1-byte cyber attack for judging demonstration"
                           style={{
-                            background: "rgba(255, 255, 255, 0.04)",
-                            border: "1px solid rgba(255, 255, 255, 0.08)",
-                            color: "#94a3b8",
-                            padding: "6px 10px",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                          }}
-                        >
-                          <Download size={14} />
-                        </button>
-
-                        <button
-                          onClick={() => navigate("/verify")}
-                          title="Challenge PDP Integrity"
-                          style={{
-                            background: "rgba(0, 240, 255, 0.1)",
-                            border: "1px solid rgba(0, 240, 255, 0.3)",
-                            color: "#00f0ff",
-                            padding: "6px 12px",
-                            borderRadius: "6px",
-                            fontSize: "12px",
-                            fontWeight: "600",
+                            background: "rgba(255, 136, 124, 0.12)",
+                            border: "1px solid var(--error)",
+                            color: "var(--error)",
+                            padding: "4px 8px",
+                            fontSize: "11px",
+                            fontWeight: "700",
+                            fontFamily: "'JetBrains Mono', monospace",
                             cursor: "pointer",
                             display: "inline-flex",
                             alignItems: "center",
                             gap: "4px",
                           }}
                         >
-                          <ShieldCheck size={14} /> Audit
+                          <Flame size={12} /> ATTACK SIM
+                        </button>
+
+                        <button
+                          onClick={() => handleDownload(file.id, file.filename)}
+                          title="Download file"
+                          style={{
+                            background: "var(--surface-container-high)",
+                            border: "1px solid var(--outline-variant)",
+                            color: "var(--on-surface-variant)",
+                            padding: "4px 8px",
+                            cursor: "pointer",
+                          }}
+                        >
+                          <Download size={13} />
+                        </button>
+
+                        <button
+                          onClick={() => navigate("/verify")}
+                          title="Challenge PDP Integrity"
+                          style={{
+                            background: "var(--primary)",
+                            color: "var(--on-primary)",
+                            padding: "4px 8px",
+                            fontSize: "11px",
+                            fontWeight: "700",
+                            fontFamily: "'JetBrains Mono', monospace",
+                            cursor: "pointer",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "4px",
+                          }}
+                        >
+                          <ShieldCheck size={13} /> AUDIT
                         </button>
 
                         <button
                           onClick={() => handleDeleteFile(file.id, file.filename)}
                           title="Delete from vault"
                           style={{
-                            background: "rgba(239, 68, 68, 0.08)",
-                            border: "1px solid rgba(239, 68, 68, 0.2)",
-                            color: "#f87171",
-                            padding: "6px 10px",
-                            borderRadius: "6px",
+                            background: "var(--surface-container-high)",
+                            border: "1px solid var(--outline-variant)",
+                            color: "var(--error)",
+                            padding: "4px 8px",
                             cursor: "pointer",
                           }}
                         >
-                          <Trash2 size={14} />
+                          <Trash2 size={13} />
                         </button>
                       </div>
                     </td>
@@ -470,3 +528,4 @@ function UploadCard() {
 }
 
 export default UploadCard;
+
