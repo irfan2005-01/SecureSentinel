@@ -17,37 +17,37 @@ const menu = [
   {
     name: "Dashboard",
     path: "/dashboard",
-    icon: <LayoutDashboard size={18} />,
+    icon: <LayoutDashboard size={17} />,
   },
   {
     name: "File Vault",
     path: "/files",
-    icon: <HardDrive size={18} />,
+    icon: <HardDrive size={17} />,
   },
   {
     name: "Integrity Audit",
     path: "/verify",
-    icon: <ShieldCheck size={18} />,
+    icon: <ShieldCheck size={17} />,
   },
   {
     name: "Audit Trail",
     path: "/logs",
-    icon: <FileSpreadsheet size={18} />,
+    icon: <FileSpreadsheet size={17} />,
   },
   {
     name: "Threat Alerts",
     path: "/alerts",
-    icon: <Bell size={18} />,
+    icon: <Bell size={17} />,
   },
   {
     name: "Cloud Storage",
     path: "/storage",
-    icon: <Cloud size={18} />,
+    icon: <Cloud size={17} />,
   },
   {
     name: "Operator Profile",
     path: "/profile",
-    icon: <User size={18} />,
+    icon: <User size={17} />,
   },
 ];
 
@@ -66,11 +66,11 @@ function Sidebar() {
       <div>
         <div className="sidebar-logo">
           <div className="logo-circle">
-            <Shield size={22} color="#050811" />
+            <Shield size={20} strokeWidth={2.5} />
           </div>
           <div>
-            <h2>SecureSentinel</h2>
-            <span>ENTERPRISE SOC</span>
+            <h2>SENTINEL</h2>
+            <span>SEC-OPS v4.2</span>
           </div>
         </div>
 
@@ -84,7 +84,7 @@ function Sidebar() {
               }
             >
               <span className="sidebar-icon">{item.icon}</span>
-              {item.name}
+              <span>{item.name}</span>
             </NavLink>
           ))}
         </nav>
@@ -94,25 +94,26 @@ function Sidebar() {
         {/* Active Storage Driver Status */}
         <div
           style={{
-            background: "rgba(255, 255, 255, 0.03)",
-            border: "1px solid rgba(255, 255, 255, 0.06)",
-            borderRadius: "10px",
-            padding: "10px 12px",
-            marginBottom: "12px",
+            background: "var(--surface-lowest)",
+            border: "1px solid var(--outline-variant)",
+            padding: "8px 12px",
+            marginBottom: "10px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <Activity size={14} color="#00e699" />
-            <span style={{ fontSize: "11px", color: "#94a3b8" }}>STORAGE:</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <Activity size={13} color="var(--secondary)" />
+            <span style={{ fontSize: "10px", color: "var(--on-surface-variant)", fontFamily: "'JetBrains Mono', monospace" }}>
+              PROVIDER:
+            </span>
           </div>
           <span
             style={{
               fontSize: "11px",
               fontWeight: "700",
-              color: "#00f0ff",
+              color: "var(--primary)",
               fontFamily: "'JetBrains Mono', monospace",
             }}
           >
@@ -120,8 +121,35 @@ function Sidebar() {
           </span>
         </div>
 
+        {/* System Stable Telemetry Pill */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            color: "var(--secondary)",
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: "11px",
+            fontWeight: "700",
+            marginBottom: "12px",
+            padding: "6px 10px",
+            background: "var(--surface-lowest)",
+            border: "1px solid var(--outline-variant)",
+          }}
+        >
+          <span
+            style={{
+              width: "8px",
+              height: "8px",
+              background: "var(--secondary)",
+              display: "inline-block",
+            }}
+          />
+          <span>[■] STABLE (0 DRIFT)</span>
+        </div>
+
         <button className="logout-btn" onClick={handleLogout}>
-          <LogOut size={15} />
+          <LogOut size={14} />
           Sign Out
         </button>
       </div>
@@ -130,3 +158,4 @@ function Sidebar() {
 }
 
 export default Sidebar;
+

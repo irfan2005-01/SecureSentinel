@@ -11,7 +11,6 @@ function Register() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
-  const [organization, setOrganization] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -41,7 +40,6 @@ function Register() {
         username: username.trim(),
         email: email.trim().toLowerCase(),
         full_name: fullName.trim(),
-        organization: organization.trim(),
         password,
       });
 
@@ -58,52 +56,66 @@ function Register() {
 
   return (
     <div className="login-page">
-      <form className="login-card" onSubmit={handleRegister} style={{ maxWidth: "500px" }}>
+      {/* Background Animated Cyber Visuals & Radar */}
+      <div className="login-radar-bg">
+        <div className="radar-circle radar-circle-1"></div>
+        <div className="radar-circle radar-circle-2"></div>
+        <div className="radar-circle radar-circle-3"></div>
+        <div className="radar-circle radar-circle-4"></div>
+        <div className="radar-sweep"></div>
+        <div className="glow-orb glow-orb-gold"></div>
+        <div className="glow-orb glow-orb-emerald"></div>
+      </div>
+      <div className="login-grid-overlay"></div>
+
+      {/* Top Tactical Header Bar */}
+      <div className="login-top-bar">
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <Shield size={14} color="var(--primary)" />
+          <strong style={{ color: "var(--primary)" }}>SECURESENTINEL ONBOARDING</strong>
+          <span>• PROTOCOL V4.2</span>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+          <span style={{ color: "var(--secondary)" }}>[■] SECURE ENCLAVE OPEN</span>
+        </div>
+      </div>
+
+      <form className="login-card" onSubmit={handleRegister} style={{ maxWidth: "480px" }}>
         <div className="login-badge">
-          <Shield size={13} /> OPERATOR ONBOARDING
+          <Shield size={12} /> OPERATOR ONBOARDING
         </div>
         <h1>Create Operator Account</h1>
         <p>Register new cryptographic vault administrator credentials</p>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-          <div className="form-group">
-            <label>Username *</label>
-            <input
-              placeholder="e.g. jdoe"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-          </div>
+        <div className="form-group">
+          <label>Operator Handle (Username) *</label>
+          <input
+            placeholder="e.g. jdoe"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+        </div>
 
-          <div className="form-group">
-            <label>Email Address *</label>
-            <input
-              type="email"
-              placeholder="operator@sentinel.io"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
+        <div className="form-group">
+          <label>Alert Notification Email *</label>
+          <input
+            type="email"
+            placeholder="operator@securesentinel.io"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
 
-          <div className="form-group">
-            <label>Full Name</label>
-            <input
-              placeholder="John Doe"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Organization</label>
-            <input
-              placeholder="Cyber Operations"
-              value={organization}
-              onChange={(e) => setOrganization(e.target.value)}
-            />
-          </div>
+        <div className="form-group">
+          <label>Operator Display Name</label>
+          <input
+            placeholder="John Doe"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+          />
         </div>
 
         <div className="form-group">
@@ -140,7 +152,7 @@ function Register() {
         <button type="submit" disabled={loading} className="login-btn">
           {loading ? "Creating Account..." : (
             <>
-              Initialize Account & Vault <ArrowRight size={16} />
+              Initialize Account & Vault <ArrowRight size={15} />
             </>
           )}
         </button>
@@ -150,8 +162,15 @@ function Register() {
           <Link to="/login" className="auth-link">Sign In</Link>
         </div>
       </form>
+
+      {/* Bottom HUD Status Strip */}
+      <div className="login-bottom-strip">
+        <div>SECURESENTINEL SOC ARCHITECTURE • ZERO RAW PAYLOAD EXPOSURE</div>
+        <div style={{ color: "var(--primary)" }}>CLASSIFICATION: UNCLASSIFIED / OPERATIONAL</div>
+      </div>
     </div>
   );
 }
 
 export default Register;
+

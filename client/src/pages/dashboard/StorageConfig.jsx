@@ -141,27 +141,27 @@ function StorageConfig() {
       <main className="dashboard-content">
         <Topbar title="Multi-Cloud Storage Hub" description="Configure cryptographic storage targets across AWS S3, Google Cloud, Azure, and Local Vault" />
 
-        <div className="card" style={{ marginBottom: "24px" }}>
+        <div className="card" style={{ marginBottom: "20px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
             <div>
               <p className="section-label">STORAGE INFRASTRUCTURE</p>
-              <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#fff", margin: 0 }}>
+              <h2 style={{ fontSize: "18px", fontWeight: "700", color: "var(--on-surface)", margin: 0 }}>
                 Unified Multi-Cloud Storage Hub
               </h2>
-              <p style={{ color: "#94a3b8", fontSize: "13px", marginTop: "4px" }}>
+              <p style={{ color: "var(--on-surface-variant)", fontSize: "13px", marginTop: "4px" }}>
                 Select and configure the cryptographic target for uploaded baseline hashes and proof vaults.
               </p>
             </div>
 
             <div>
-              <span style={{ fontSize: "11px", color: "#64748b", textTransform: "uppercase", display: "block", marginBottom: "4px" }}>
+              <span style={{ fontSize: "10px", color: "var(--on-surface-variant)", textTransform: "uppercase", display: "block", marginBottom: "4px", fontFamily: "'JetBrains Mono', monospace" }}>
                 ACTIVE STORAGE DRIVER
               </span>
               <span
                 className="status verified"
-                style={{ textTransform: "uppercase", fontWeight: "700", padding: "6px 14px", fontSize: "13px" }}
+                style={{ textTransform: "uppercase", fontWeight: "700", padding: "4px 10px", fontSize: "11px" }}
               >
-                <CheckCircle2 size={14} /> {activeProvider}
+                <CheckCircle2 size={13} /> {activeProvider}
               </span>
             </div>
           </div>
@@ -169,26 +169,26 @@ function StorageConfig() {
           {healthStatus && (
             <div
               style={{
-                marginTop: "18px",
-                padding: "12px 16px",
-                borderRadius: "10px",
-                background: healthStatus.status ? "rgba(0, 230, 153, 0.08)" : "rgba(255, 51, 102, 0.08)",
-                border: `1px solid ${healthStatus.status ? "rgba(0, 230, 153, 0.25)" : "rgba(255, 51, 102, 0.25)"}`,
+                marginTop: "16px",
+                padding: "10px 14px",
+                background: healthStatus.status ? "rgba(140, 215, 165, 0.08)" : "rgba(255, 180, 171, 0.08)",
+                border: `1px solid ${healthStatus.status ? "var(--secondary)" : "var(--error)"}`,
                 display: "flex",
                 alignItems: "center",
                 gap: "10px",
-                fontSize: "13px",
-                color: healthStatus.status ? "#00e699" : "#ff3366",
+                fontSize: "12px",
+                fontFamily: "'JetBrains Mono', monospace",
+                color: healthStatus.status ? "var(--secondary)" : "var(--error)",
               }}
             >
-              {healthStatus.status ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
+              {healthStatus.status ? <CheckCircle2 size={15} /> : <AlertTriangle size={15} />}
               <span>{healthStatus.message}</span>
             </div>
           )}
         </div>
 
         {/* Provider Cards Selector */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px", marginBottom: "24px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "14px", marginBottom: "20px" }}>
           {Object.entries(providerDetails).map(([key, prov]) => {
             const isSelected = selectedTab === key;
             const isActive = activeProvider === key;
@@ -197,27 +197,28 @@ function StorageConfig() {
               <div
                 key={key}
                 onClick={() => setSelectedTab(key)}
-                className="card metric-card"
+                className="metric-card"
                 style={{
                   cursor: "pointer",
-                  border: isSelected ? "2px solid #00f0ff" : "1px solid rgba(255, 255, 255, 0.07)",
-                  background: isSelected ? "linear-gradient(180deg, #111a30 0%, #0c1222 100%)" : "rgba(13, 21, 39, 0.75)",
+                  border: isSelected ? "1px solid var(--primary)" : "1px solid var(--outline-variant)",
+                  background: isSelected ? "var(--surface-container-high)" : "var(--surface-container)",
                   transition: "all 0.2s ease",
                   position: "relative",
+                  padding: "16px",
                 }}
               >
                 {isActive && (
                   <span
                     style={{
                       position: "absolute",
-                      top: "12px",
-                      right: "12px",
-                      background: "#00e699",
-                      color: "#050811",
-                      fontSize: "10px",
+                      top: "10px",
+                      right: "10px",
+                      background: "var(--secondary)",
+                      color: "var(--surface-lowest)",
+                      fontSize: "9px",
                       fontWeight: "800",
-                      padding: "2px 8px",
-                      borderRadius: "999px",
+                      padding: "2px 6px",
+                      fontFamily: "'JetBrains Mono', monospace",
                     }}
                   >
                     ACTIVE
@@ -225,15 +226,15 @@ function StorageConfig() {
                 )}
 
                 <div className="metric-top">
-                  <span style={{ fontSize: "14px", fontWeight: "700", color: isSelected ? "#fff" : "#94a3b8" }}>
+                  <span style={{ fontSize: "13px", fontWeight: "700", color: isSelected ? "var(--primary)" : "var(--on-surface)" }}>
                     {prov.name.split(" ")[0]}
                   </span>
-                  <div className="metric-icon">
+                  <div className="metric-icon" style={{ width: "28px", height: "28px" }}>
                     {prov.icon}
                   </div>
                 </div>
 
-                <p style={{ fontSize: "12px", color: "#64748b", margin: "10px 0 0 0" }}>
+                <p style={{ fontSize: "11px", color: "var(--on-surface-variant)", margin: "8px 0 0 0" }}>
                   {prov.tagline}
                 </p>
               </div>
@@ -243,25 +244,25 @@ function StorageConfig() {
 
         {/* Dynamic Config Form */}
         <div className="card" style={{ maxWidth: "800px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
-            <div style={{ fontSize: "24px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "18px" }}>
+            <div style={{ fontSize: "20px" }}>
               {providerDetails[selectedTab]?.icon}
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: "18px", fontWeight: "700", color: "#fff" }}>
+              <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "700", color: "var(--on-surface)" }}>
                 {providerDetails[selectedTab]?.name} Credentials
               </h3>
-              <small style={{ color: "#64748b" }}>
-                {selectedTab === "local" ? "No external cloud API keys required" : "Zero-knowledge encryption at rest"}
+              <small style={{ color: "var(--on-surface-variant)", fontFamily: "'JetBrains Mono', monospace", fontSize: "11px" }}>
+                {selectedTab === "local" ? "Air-gapped on-premise vault storage" : "Zero-knowledge cryptographic anchoring"}
               </small>
             </div>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
             {providerDetails[selectedTab]?.fields.map((field) => (
               <div key={field.key} className="form-group">
-                <label style={{ color: "#cbd5e1", fontSize: "13px", fontWeight: "600" }}>
-                  {field.label} {field.required && <span style={{ color: "#ff3366" }}>*</span>}
+                <label style={{ color: "var(--on-surface-variant)", fontSize: "11px", fontWeight: "600", textTransform: "uppercase", fontFamily: "'JetBrains Mono', monospace" }}>
+                  {field.label} {field.required && <span style={{ color: "var(--error)" }}>*</span>}
                 </label>
 
                 {field.type === "textarea" ? (
@@ -271,13 +272,13 @@ function StorageConfig() {
                     value={configValues[field.key] || ""}
                     onChange={(e) => handleFieldChange(field.key, e.target.value)}
                     style={{
-                      background: "#080c18",
-                      border: "1px solid #1e293b",
-                      borderRadius: "10px",
-                      padding: "12px",
-                      color: "#fff",
+                      background: "var(--surface-lowest)",
+                      border: "1px solid var(--outline-variant)",
+                      padding: "10px",
+                      color: "var(--on-surface)",
                       fontFamily: "'JetBrains Mono', monospace",
                       fontSize: "12px",
+                      outline: "none",
                     }}
                   />
                 ) : (
@@ -287,36 +288,37 @@ function StorageConfig() {
                     value={configValues[field.key] || ""}
                     onChange={(e) => handleFieldChange(field.key, e.target.value)}
                     style={{
-                      background: "#080c18",
-                      border: "1px solid #1e293b",
-                      borderRadius: "10px",
-                      padding: "12px 14px",
-                      color: "#fff",
-                      fontSize: "14px",
+                      background: "var(--surface-lowest)",
+                      border: "1px solid var(--outline-variant)",
+                      padding: "10px 12px",
+                      color: "var(--on-surface)",
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: "12px",
+                      outline: "none",
                     }}
                   />
                 )}
               </div>
             ))}
 
-            <div style={{ display: "flex", gap: "14px", marginTop: "12px" }}>
+            <div style={{ display: "flex", gap: "12px", marginTop: "8px" }}>
               <button
                 type="button"
                 className="browse-btn"
                 onClick={testConnection}
                 disabled={testing}
                 style={{
-                  background: "rgba(255, 255, 255, 0.05)",
-                  color: "#00f0ff",
-                  border: "1px solid rgba(0, 240, 255, 0.3)",
-                  padding: "12px 24px",
-                  borderRadius: "10px",
+                  background: "var(--surface-container-high)",
+                  color: "var(--on-surface)",
+                  border: "1px solid var(--outline-variant)",
+                  padding: "10px 18px",
+                  fontSize: "11px",
                   fontWeight: "600",
                   cursor: "pointer",
                 }}
               >
-                <Radio size={16} />
-                {testing ? "Testing Reachability..." : "Test Connection / Ping"}
+                <Radio size={14} />
+                {testing ? "Testing Reachability..." : "Test Connection"}
               </button>
 
               <button
@@ -325,16 +327,12 @@ function StorageConfig() {
                 onClick={saveConfiguration}
                 disabled={saving}
                 style={{
-                  background: "linear-gradient(135deg, #00f0ff 0%, #00e699 100%)",
-                  color: "#050811",
-                  border: "none",
-                  padding: "12px 28px",
-                  borderRadius: "10px",
+                  padding: "10px 22px",
+                  fontSize: "11px",
                   fontWeight: "700",
-                  cursor: "pointer",
                 }}
               >
-                <Zap size={16} />
+                <Zap size={14} />
                 {saving ? "Activating Driver..." : `Save & Activate ${providerDetails[selectedTab]?.name.split(" ")[0]}`}
               </button>
             </div>

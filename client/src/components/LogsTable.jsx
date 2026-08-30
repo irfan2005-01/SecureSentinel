@@ -45,15 +45,15 @@ function LogsTable() {
   const getActionIcon = (action) => {
     switch (action?.toUpperCase()) {
       case "UPLOAD":
-        return <UploadCloud size={16} color="#00f0ff" />;
+        return <UploadCloud size={15} color="var(--primary)" />;
       case "VERIFY":
-        return <ShieldCheck size={16} color="#a855f7" />;
+        return <ShieldCheck size={15} color="var(--secondary)" />;
       case "DELETE":
-        return <Trash2 size={16} color="#ff3366" />;
+        return <Trash2 size={15} color="var(--error)" />;
       case "CONFIG_UPDATE":
-        return <Sliders size={16} color="#f59e0b" />;
+        return <Sliders size={15} color="var(--primary)" />;
       default:
-        return <ShieldCheck size={16} color="#94a3b8" />;
+        return <ShieldCheck size={15} color="var(--on-surface-variant)" />;
     }
   };
 
@@ -62,19 +62,19 @@ function LogsTable() {
     if (s === "verified" || s === "success") {
       return (
         <span className="status verified">
-          <CheckCircle2 size={12} /> {status}
+          <CheckCircle2 size={11} /> {status}
         </span>
       );
     } else if (s === "tampered") {
       return (
         <span className="status tampered">
-          <AlertTriangle size={12} /> {status}
+          <AlertTriangle size={11} /> {status}
         </span>
       );
     } else if (s === "not found") {
       return (
-        <span className="status warning" style={{ background: "rgba(245, 158, 11, 0.15)", color: "#f59e0b", border: "1px solid rgba(245, 158, 11, 0.3)" }}>
-          <HelpCircle size={12} /> {status}
+        <span className="status warning" style={{ background: "rgba(243, 190, 101, 0.15)", color: "var(--primary)", border: "1px solid var(--outline-variant)" }}>
+          <HelpCircle size={11} /> {status}
         </span>
       );
     }
@@ -86,39 +86,41 @@ function LogsTable() {
   };
 
   return (
-    <div className="card logs-card">
+    <div className="card">
       <div className="logs-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
         <div>
           <p className="section-label">FORENSIC REGISTRY</p>
-          <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#fff", margin: 0 }}>
+          <h2 style={{ fontSize: "18px", fontWeight: "700", color: "var(--on-surface)", margin: 0 }}>
             Immutable Audit Trail
           </h2>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "#080c18", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "10px", padding: "8px 14px" }}>
-          <Search size={15} color="#64748b" />
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", background: "var(--surface-lowest)", border: "1px solid var(--outline-variant)", padding: "6px 12px" }}>
+          <Search size={14} color="var(--on-surface-variant)" />
           <input
             type="text"
-            placeholder="Search filenames, actions, details..."
+            placeholder="Search logs, actions, SHA hashes..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{
               background: "transparent",
-              color: "#fff",
-              fontSize: "13px",
-              width: "220px",
+              color: "var(--on-surface)",
+              fontSize: "12px",
+              fontFamily: "'JetBrains Mono', monospace",
+              width: "240px",
+              outline: "none",
             }}
           />
         </div>
       </div>
 
       {loading ? (
-        <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
-          Querying cryptographic audit logs...
+        <div style={{ textAlign: "center", padding: "30px", color: "var(--on-surface-variant)", fontFamily: "'JetBrains Mono', monospace", fontSize: "12px" }}>
+          QUERYING CRYPTOGRAPHIC AUDIT LOGS...
         </div>
       ) : filteredLogs.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "40px", color: "#64748b" }}>
-          No audit logs matching search query.
+        <div style={{ textAlign: "center", padding: "30px", color: "var(--on-surface-variant)", fontFamily: "'JetBrains Mono', monospace", fontSize: "12px" }}>
+          NO AUDIT LOGS MATCHING SEARCH QUERY.
         </div>
       ) : (
         <div className="logs-list">
@@ -130,16 +132,16 @@ function LogsTable() {
                 </div>
 
                 <div>
-                  <h4 style={{ fontSize: "14px", fontWeight: "600", color: "#fff", margin: 0 }}>
+                  <h4 style={{ fontSize: "13px", fontWeight: "600", color: "var(--on-surface)", margin: 0 }}>
                     {log.filename || "System Event"}
                   </h4>
-                  <div style={{ display: "flex", gap: "10px", alignItems: "center", marginTop: "4px" }}>
-                    <span style={{ fontSize: "11px", color: "#64748b", display: "flex", alignItems: "center", gap: "4px" }}>
+                  <div style={{ display: "flex", gap: "10px", alignItems: "center", marginTop: "3px", flexWrap: "wrap" }}>
+                    <span style={{ fontSize: "10px", color: "var(--on-surface-variant)", display: "flex", alignItems: "center", gap: "4px", fontFamily: "'JetBrains Mono', monospace" }}>
                       <Clock size={10} />
                       {log.timestamp ? new Date(log.timestamp).toLocaleString() : "Just now"}
                     </span>
                     {log.details && (
-                      <small style={{ color: "#94a3b8", fontSize: "11px" }}>
+                      <small style={{ color: "var(--on-surface-variant)", fontSize: "11px", fontFamily: "'JetBrains Mono', monospace" }}>
                         • {log.details}
                       </small>
                     )}
@@ -162,3 +164,4 @@ function LogsTable() {
 }
 
 export default LogsTable;
+

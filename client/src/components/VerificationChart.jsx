@@ -36,7 +36,7 @@ function VerificationChart() {
   }
 
   return (
-    <div className="card chart-card">
+    <div className="card">
       <div
         className="chart-header"
         style={{
@@ -45,12 +45,12 @@ function VerificationChart() {
           alignItems: "center",
           flexWrap: "wrap",
           gap: "16px",
-          marginBottom: "20px",
+          marginBottom: "16px",
         }}
       >
         <div>
           <p className="section-label">TIMELINE METRICS</p>
-          <h2 style={{ fontSize: "20px", fontWeight: "700", color: "#fff", margin: 0 }}>
+          <h2 style={{ fontSize: "16px", fontWeight: "700", color: "var(--on-surface)", margin: 0 }}>
             Verification Activity & Threat Velocity
           </h2>
         </div>
@@ -59,10 +59,9 @@ function VerificationChart() {
           {/* Timeframe selector pills */}
           <div
             style={{
-              background: "#080c18",
-              border: "1px solid rgba(255, 255, 255, 0.08)",
-              borderRadius: "8px",
-              padding: "3px",
+              background: "var(--surface-lowest)",
+              border: "1px solid var(--outline-variant)",
+              padding: "2px",
               display: "flex",
               gap: "2px",
             }}
@@ -72,12 +71,10 @@ function VerificationChart() {
                 key={tf}
                 onClick={() => setTimeframe(tf)}
                 style={{
-                  background: timeframe === tf ? "rgba(0, 240, 255, 0.15)" : "transparent",
-                  color: timeframe === tf ? "#00f0ff" : "#64748b",
-                  border: timeframe === tf ? "1px solid rgba(0, 240, 255, 0.3)" : "1px solid transparent",
-                  borderRadius: "6px",
-                  padding: "4px 10px",
-                  fontSize: "11px",
+                  background: timeframe === tf ? "var(--primary-container)" : "transparent",
+                  color: timeframe === tf ? "var(--on-primary-container)" : "var(--on-surface-variant)",
+                  padding: "3px 8px",
+                  fontSize: "10px",
                   fontWeight: "700",
                   cursor: "pointer",
                   fontFamily: "'JetBrains Mono', monospace",
@@ -95,71 +92,68 @@ function VerificationChart() {
               <span
                 key={prov}
                 style={{
-                  background: "#080c18",
-                  padding: "4px 10px",
-                  borderRadius: "6px",
-                  fontSize: "11px",
-                  color: "#94a3b8",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  background: "var(--surface-lowest)",
+                  padding: "3px 8px",
+                  fontSize: "10px",
+                  color: "var(--on-surface-variant)",
+                  border: "1px solid var(--outline-variant)",
                   display: "flex",
                   alignItems: "center",
                   gap: "4px",
+                  fontFamily: "'JetBrains Mono', monospace",
                 }}
               >
-                <Cloud size={12} color="#00f0ff" />
-                <strong style={{ color: "#00f0ff", textTransform: "uppercase" }}>{prov}</strong>: {count}
+                <Cloud size={11} color="var(--primary)" />
+                <strong style={{ color: "var(--primary)", textTransform: "uppercase" }}>{prov}</strong>: {count}
               </span>
             ))}
           </div>
         </div>
       </div>
 
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={260}>
         <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-          <CartesianGrid stroke="rgba(255, 255, 255, 0.04)" vertical={false} />
-          <XAxis dataKey="upload" stroke="#64748b" fontSize={12} tickLine={false} />
-          <YAxis stroke="#64748b" allowDecimals={false} fontSize={12} tickLine={false} />
+          <CartesianGrid stroke="rgba(79, 69, 55, 0.2)" vertical={false} />
+          <XAxis dataKey="upload" stroke="var(--on-surface-variant)" fontSize={11} tickLine={false} fontFamily="'JetBrains Mono', monospace" />
+          <YAxis stroke="var(--on-surface-variant)" allowDecimals={false} fontSize={11} tickLine={false} fontFamily="'JetBrains Mono', monospace" />
           <Tooltip
             contentStyle={{
-              background: "rgba(10, 15, 29, 0.95)",
-              border: "1px solid rgba(0, 240, 255, 0.2)",
-              borderRadius: "12px",
-              color: "#fff",
-              boxShadow: "0 10px 25px rgba(0,0,0,0.6)",
-              backdropFilter: "blur(12px)",
-              fontSize: "12px",
+              background: "var(--surface-container)",
+              border: "1px solid var(--outline-variant)",
+              color: "var(--on-surface)",
+              fontSize: "11px",
               fontFamily: "'JetBrains Mono', monospace",
             }}
           />
           <Legend
-            wrapperStyle={{ paddingTop: "14px", fontSize: "12px" }}
+            wrapperStyle={{ paddingTop: "10px", fontSize: "11px", fontFamily: "'JetBrains Mono', monospace" }}
           />
           <Line
             type="monotone"
             name="Ingested Files"
             dataKey="uploads"
-            stroke="#00f0ff"
-            strokeWidth={3}
-            dot={{ r: 4, fill: "#00f0ff", strokeWidth: 0 }}
-            activeDot={{ r: 6, stroke: "#fff", strokeWidth: 2 }}
+            stroke="#f3be65"
+            strokeWidth={2}
+            dot={{ r: 3, fill: "#f3be65", strokeWidth: 0 }}
+            activeDot={{ r: 5, stroke: "#fff", strokeWidth: 2 }}
           />
           <Line
             type="monotone"
             name="Verified Passes"
             dataKey="verifications"
-            stroke="#00e699"
-            strokeWidth={3}
-            dot={{ r: 4, fill: "#00e699", strokeWidth: 0 }}
-            activeDot={{ r: 6, stroke: "#fff", strokeWidth: 2 }}
+            stroke="#8cd7a5"
+            strokeWidth={2}
+            dot={{ r: 3, fill: "#8cd7a5", strokeWidth: 0 }}
+            activeDot={{ r: 5, stroke: "#fff", strokeWidth: 2 }}
           />
           <Line
             type="monotone"
             name="Tamper Alerts"
             dataKey="threats"
-            stroke="#ff3366"
+            stroke="#ff887c"
             strokeWidth={2}
-            dot={{ r: 4, fill: "#ff3366", strokeWidth: 0 }}
-            activeDot={{ r: 6, stroke: "#fff", strokeWidth: 2 }}
+            dot={{ r: 3, fill: "#ff887c", strokeWidth: 0 }}
+            activeDot={{ r: 5, stroke: "#fff", strokeWidth: 2 }}
           />
         </LineChart>
       </ResponsiveContainer>
@@ -168,3 +162,4 @@ function VerificationChart() {
 }
 
 export default VerificationChart;
+

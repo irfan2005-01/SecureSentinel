@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import {
   HardDrive,
-
   AlertTriangle,
   ShieldAlert,
   ShieldCheck,
-
 } from "lucide-react";
 import api from "../services/api";
 
@@ -39,29 +37,29 @@ function Stats() {
       title: "Protected Vault Files",
       value: stats.total_files,
       subtitle: "Active cryptographic baselines",
-      icon: <HardDrive size={20} color="#00f0ff" />,
-      color: "#00f0ff",
+      icon: <HardDrive size={18} color="var(--primary)" />,
+      color: "var(--primary)",
     },
     {
       title: "Integrity Verified",
       value: stats.verified,
       subtitle: "Deterministic matches confirmed",
-      icon: <ShieldCheck size={20} color="#00e699" />,
-      color: "#00e699",
+      icon: <ShieldCheck size={18} color="var(--secondary)" />,
+      color: "var(--secondary)",
     },
     {
       title: "Tamper Threats",
       value: stats.tampered,
       subtitle: "Mismatched signature alerts",
-      icon: <ShieldAlert size={20} color="#ff3366" />,
-      color: "#ff3366",
+      icon: <ShieldAlert size={18} color="var(--error)" />,
+      color: stats.tampered > 0 ? "var(--error)" : "var(--on-surface-variant)",
     },
     {
-      title: "Dynamic Risk Index",
-      value: stats.risk,
+      title: "Dynamic Threat Level",
+      value: stats.risk === "Low" ? "ZERO DRIFT" : stats.risk.toUpperCase(),
       subtitle: stats.risk === "Low" ? "Optimal zero-drift status" : "Elevated threat response active",
-      icon: <AlertTriangle size={20} color={stats.risk === "Low" ? "#00e699" : "#f59e0b"} />,
-      color: stats.risk === "Low" ? "#00e699" : "#f59e0b",
+      icon: <AlertTriangle size={18} color={stats.risk === "Low" ? "var(--secondary)" : "var(--primary)"} />,
+      color: stats.risk === "Low" ? "var(--secondary)" : "var(--primary)",
     },
   ];
 
@@ -86,3 +84,4 @@ function Stats() {
 }
 
 export default Stats;
+

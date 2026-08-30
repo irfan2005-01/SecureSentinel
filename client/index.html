@@ -1,13 +1,84 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>client</title>
+    <title>SecureSentinel | Autonomous Cryptographic Defense</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+    <!-- Tailwind CSS CDN & Stitch Configuration -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-high": "#242a32",
+              "inverse-surface": "#dde3ed",
+              "on-background": "#dde3ed",
+              "error-container": "#93000a",
+              "on-error-container": "#ffdad6",
+              "on-surface-variant": "#d3c4b2",
+              "secondary": "#8cd7a5",
+              "on-secondary": "#00391e",
+              "on-error": "#690005",
+              "surface-container-highest": "#2f353d",
+              "inverse-on-surface": "#2b3138",
+              "outline-variant": "#4f4537",
+              "surface-container-low": "#161c23",
+              "surface-variant": "#2f353d",
+              "on-tertiary-fixed-variant": "#802822",
+              "primary-container": "#d4a24c",
+              "tertiary-fixed": "#ffdad6",
+              "secondary-fixed": "#a7f3c0",
+              "primary-fixed": "#ffdeac",
+              "on-secondary-fixed-variant": "#00522e",
+              "outline": "#9c8f7e",
+              "on-tertiary-fixed": "#410002",
+              "on-tertiary": "#61110e",
+              "on-tertiary-container": "#76201b",
+              "surface-dim": "#0e141b",
+              "surface-container": "#1a2027",
+              "surface": "#0e141b",
+              "on-surface": "#dde3ed",
+              "primary": "#f3be65",
+              "surface-container-lowest": "#090f15",
+              "tertiary-container": "#ff887c",
+              "surface-bright": "#343a41",
+              "secondary-fixed-dim": "#8cd7a5",
+              "tertiary-fixed-dim": "#ffb4ab",
+              "on-secondary-container": "#81cc9b",
+              "secondary-container": "#005731",
+              "on-primary-fixed-variant": "#604100",
+              "on-primary": "#432c00",
+              "surface-tint": "#f3be65",
+              "on-primary-container": "#563a00",
+              "inverse-primary": "#7e5700",
+              "background": "#0e141b",
+              "tertiary": "#ffb4ab",
+              "primary-fixed-dim": "#f3be65",
+              "error": "#ffb4ab",
+              "on-secondary-fixed": "#00210f",
+              "on-primary-fixed": "#281900"
+            },
+            fontFamily: {
+              sans: ["Inter", "sans-serif"],
+              mono: ["'JetBrains Mono'", "monospace"],
+            },
+          }
+        }
+      };
+    </script>
   </head>
-  <body>
+  <body class="bg-[#0e141b] text-[#dde3ed] font-sans antialiased selection:bg-[#f3be65] selection:text-[#0e141b]">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
+

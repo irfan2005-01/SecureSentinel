@@ -1,6 +1,4 @@
 import {
-
-
   FileText,
   Hash,
   HelpCircle,
@@ -15,34 +13,33 @@ function StatusCard({ result }) {
 
   const isVerified = result.status === "Verified";
   const isTampered = result.status === "Tampered";
-  // isNotFound
   const isError = result.status === "Error";
 
   let statusClass = "info";
-  let statusIcon = <HelpCircle className="status-big-icon warning-icon" color="#f59e0b" size={32} />;
+  let statusIcon = <HelpCircle className="status-big-icon" color="var(--primary)" size={28} />;
   let statusHeading = "Unregistered Vault Signature";
 
   if (isVerified) {
     statusClass = "success";
-    statusIcon = <ShieldCheck className="status-big-icon success-icon" color="#00e699" size={32} />;
-    statusHeading = "Cryptographically Verified";
+    statusIcon = <ShieldCheck className="status-big-icon success-icon" color="var(--secondary)" size={28} />;
+    statusHeading = "Cryptographically Verified Baseline";
   } else if (isTampered) {
     statusClass = "danger";
-    statusIcon = <ShieldAlert className="status-big-icon danger-icon" color="#ff3366" size={32} />;
-    statusHeading = "SECURITY ALERT: Signature Tampering Detected!";
+    statusIcon = <ShieldAlert className="status-big-icon danger-icon" color="var(--error)" size={28} />;
+    statusHeading = "SECURITY ALERT: Signature Divergence Detected!";
   } else if (isError) {
     statusClass = "danger";
-    statusIcon = <XCircle className="status-big-icon danger-icon" color="#ff3366" size={32} />;
-    statusHeading = "Verification Error";
+    statusIcon = <XCircle className="status-big-icon danger-icon" color="var(--error)" size={28} />;
+    statusHeading = "Verification Protocol Error";
   }
 
   return (
-    <div className={`card status-card ${statusClass}`} style={{ marginTop: "24px" }}>
+    <div className={`card status-card ${statusClass}`} style={{ marginTop: "20px" }}>
       <div className="status-header">
         {statusIcon}
         <div>
           <p className="section-label">CRYPTOGRAPHIC INTEGRITY AUDIT</p>
-          <h2 style={{ fontSize: "20px", fontWeight: "800", color: "#fff", margin: "2px 0 0 0" }}>
+          <h2 style={{ fontSize: "18px", fontWeight: "700", color: "var(--on-surface)", margin: "2px 0 0 0" }}>
             {statusHeading}
           </h2>
         </div>
@@ -50,7 +47,7 @@ function StatusCard({ result }) {
 
       <div className="status-grid">
         <div className="status-box">
-          <FileText size={18} color="#00f0ff" />
+          <FileText size={16} color="var(--primary)" />
           <div>
             <span>File Name</span>
             <h4>{result.filename || "Unknown"}</h4>
@@ -58,21 +55,22 @@ function StatusCard({ result }) {
         </div>
 
         <div className="status-box">
-          <Hash size={18} color="#a855f7" />
+          <Hash size={16} color="var(--primary)" />
           <div>
             <span>Integrity Status</span>
             <h4 style={{
-              color: isVerified ? "#00e699" : isTampered ? "#ff3366" : "#f59e0b",
+              color: isVerified ? "var(--secondary)" : isTampered ? "var(--error)" : "var(--primary)",
               fontWeight: "700",
+              fontFamily: "'JetBrains Mono', monospace",
             }}>
-              {result.status}
+              {isVerified ? "[■] VERIFIED" : isTampered ? "[▲] TAMPERED" : "[?] UNREGISTERED"}
             </h4>
           </div>
         </div>
 
         {result.storage_provider && (
           <div className="status-box">
-            <Cloud size={18} color="#00f0ff" />
+            <Cloud size={16} color="var(--primary)" />
             <div>
               <span>Storage Driver</span>
               <h4 style={{ textTransform: "uppercase" }}>{result.storage_provider}</h4>
@@ -82,24 +80,24 @@ function StatusCard({ result }) {
       </div>
 
       <div className="hash-card">
-        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
-          <span style={{ fontSize: "11px", color: "#94a3b8", textTransform: "uppercase" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+          <span style={{ fontSize: "10px", color: "var(--on-surface-variant)", textTransform: "uppercase", fontFamily: "'JetBrains Mono', monospace" }}>
             CALCULATED SHA-256 (TESTED ARTIFACT)
           </span>
-          <small style={{ color: "#64748b" }}>256-bit Cryptographic Checksum</small>
+          <small style={{ color: "var(--on-surface-variant)", fontFamily: "'JetBrains Mono', monospace", fontSize: "10px" }}>256-bit Digest</small>
         </div>
         <code>{result.sha256 || "N/A"}</code>
       </div>
 
       {result.expected_sha256 && isTampered && (
-        <div className="hash-card" style={{ borderColor: "#ff3366", background: "rgba(255, 51, 102, 0.08)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
-            <span style={{ fontSize: "11px", color: "#ff3366", fontWeight: "700", textTransform: "uppercase" }}>
+        <div className="hash-card" style={{ borderColor: "var(--error)", background: "rgba(255, 180, 171, 0.08)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+            <span style={{ fontSize: "10px", color: "var(--error)", fontWeight: "700", textTransform: "uppercase", fontFamily: "'JetBrains Mono', monospace" }}>
               EXPECTED VAULT BASELINE (STORED SIGNATURE)
             </span>
-            <small style={{ color: "#ff3366" }}>MISMATCH DETECTED</small>
+            <small style={{ color: "var(--error)", fontFamily: "'JetBrains Mono', monospace", fontSize: "10px" }}>[DIVERGENCE]</small>
           </div>
-          <code style={{ color: "#ff3366" }}>{result.expected_sha256}</code>
+          <code style={{ color: "var(--error)" }}>{result.expected_sha256}</code>
         </div>
       )}
 
@@ -111,3 +109,4 @@ function StatusCard({ result }) {
 }
 
 export default StatusCard;
+

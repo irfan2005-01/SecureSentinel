@@ -11,6 +11,7 @@ if str(BASE_DIR) not in sys.path:
 
 import io
 import os
+import uuid
 import pytest
 from fastapi.testclient import TestClient
 from server.main import app
@@ -36,17 +37,22 @@ def test_root_endpoint():
 
 def test_auth_register_and_login():
     # Register test user
+    uid = uuid.uuid4().hex[:8]
+    username = f"tester_auth_{uid}"
     reg_payload = {
-        "username": "security_tester",
-        "email": "security_tester@securesentinel.io",
+        "username": username,
+        "email": f"{username}@securesentinel.io",
         "password": "Password123!",
     }
     reg_res = client.post("/api/auth/register", json=reg_payload)
-    assert reg_res.status_code in (200, 400)
+    assert reg_res.status_code == 200
+    reg_data = reg_res.json()
+    assert "access_token" in reg_data
+    assert reg_data["user"]["username"] == username
 
     # Login test
     login_res = client.post("/api/auth/login", json={
-        "username": "security_tester",
+        "username": username,
         "password": "Password123!",
     })
     assert login_res.status_code == 200
@@ -58,7 +64,7 @@ def test_auth_register_and_login():
     # Test /me endpoint
     me_res = client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
     assert me_res.status_code == 200
-    assert me_res.json()["username"] == "security_tester"
+    assert me_res.json()["username"] == username
 
 
 def test_file_upload_and_verification():
@@ -169,20 +175,24 @@ def test_analytics_and_health():
 
 
 def test_profile_management_and_password_change():
-    # Login as tester
-    login_res = client.post("/api/auth/login", json={
-        "username": "security_tester",
+    # Register isolated test user
+    uid = uuid.uuid4().hex[:8]
+    username = f"tester_prof_{uid}"
+    reg_res = client.post("/api/auth/register", json={
+        "username": username,
+        "email": f"{username}@securesentinel.io",
         "password": "Password123!",
+        "full_name": "Initial Profile Name",
     })
-    assert login_res.status_code == 200
-    token = login_res.json()["access_token"]
+    assert reg_res.status_code == 200
+    token = reg_res.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
 
     # Get full profile
     prof_res = client.get("/api/auth/profile", headers=headers)
     assert prof_res.status_code == 200
     pdata = prof_res.json()
-    assert pdata["username"] == "security_tester"
+    assert pdata["username"] == username
     assert "stats" in pdata
 
     # Update profile
@@ -204,13 +214,14 @@ def test_profile_management_and_password_change():
 
     # Verify old password fails and new password works
     old_login = client.post("/api/auth/login", json={
-        "username": "security_tester",
+        "username": username,
         "password": "Password123!",
     })
     assert old_login.status_code == 401
 
     new_login = client.post("/api/auth/login", json={
-        "username": "security_tester",
+        "username": username,
         "password": "NewSecurePassword456!",
     })
     assert new_login.status_code == 200
+

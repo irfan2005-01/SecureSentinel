@@ -2,563 +2,536 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Shield,
-  Lock,
-  Cloud,
-
-  FileCheck,
-
-  AlertTriangle,
-  ArrowRight,
-
-  Layers,
   Terminal,
   Activity,
   Zap,
   Globe,
-
+  ArrowRight,
   ChevronRight,
+  Lock,
+  Cpu,
+  Layers,
+  FileCheck,
+  AlertTriangle,
+  RefreshCw,
+  Sliders,
 } from "lucide-react";
 import { isAuthenticated } from "../services/api";
 
-const tickers = [
-  "Provable Data Possession (PDP) Protocol Active",
-  "Multi-Cloud Cryptographic Anchoring (AWS • GCS • Azure • Local)",
-  "Zero-Knowledge Tamper Detection Engine",
-  "Sub-Second SHA-256 Avalanche Verification",
-  "NIST SP 800-88 Cryptographic Shredding & Proofs",
-];
+// Fast browser-native SHA-256 helper for live avalanche sandbox
+async function computeSha256(text) {
+  try {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(text);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+  } catch {
+    return "0000000000000000000000000000000000000000000000000000000000000000";
+  }
+}
 
 function Home() {
-  const [tickerIndex, setTickerIndex] = useState(0);
   const isAuth = isAuthenticated();
 
+  // Avalanche Sandbox State
+  const [baseText, setBaseText] = useState("SECURE_SENTINEL_INTEGRITY_PAYLOAD_V4");
+  const [tamperText, setTamperText] = useState("SECURE_SENTINEL_INTEGRITY_PAYLOAD_V5");
+  const [baseHash, setBaseHash] = useState("");
+  const [tamperHash, setTamperHash] = useState("");
+  const [cursorVisible, setCursorVisible] = useState(true);
+
+  // Re-calculate hashes in real time
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTickerIndex((prev) => (prev + 1) % tickers.length);
-    }, 3500);
+    let isMounted = true;
+    Promise.all([computeSha256(baseText), computeSha256(tamperText)]).then(
+      ([h1, h2]) => {
+        if (isMounted) {
+          setBaseHash(h1);
+          setTamperHash(h2);
+        }
+      }
+    );
+    return () => {
+      isMounted = false;
+    };
+  }, [baseText, tamperText]);
+
+  // Terminal cursor blink
+  useEffect(() => {
+    const interval = setInterval(() => setCursorVisible((v) => !v), 500);
     return () => clearInterval(interval);
   }, []);
 
+  // Calculate bit difference
+  const calculateBitDiff = () => {
+    if (!baseHash || !tamperHash || baseHash.length !== 64 || tamperHash.length !== 64) {
+      return { diffBits: 0, percent: 0 };
+    }
+    let diffBits = 0;
+    for (let i = 0; i < 64; i++) {
+      const b1 = parseInt(baseHash[i], 16);
+      const b2 = parseInt(tamperHash[i], 16);
+      const xor = b1 ^ b2;
+      diffBits += (xor & 1) + ((xor >> 1) & 1) + ((xor >> 2) & 1) + ((xor >> 3) & 1);
+    }
+    const percent = ((diffBits / 256) * 100).toFixed(1);
+    return { diffBits, percent };
+  };
+
+  const { diffBits, percent } = calculateBitDiff();
+
   return (
-    <div style={{ background: "#050811", color: "#f8fafc", minHeight: "100vh", overflowX: "hidden" }}>
-      {/* Dynamic Cyber Grid Background */}
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          backgroundImage: `
-            radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.12) 0%, transparent 60%),
-            radial-gradient(circle at 80% 50%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
-            linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px)
-          `,
-          backgroundSize: "100% 100%, 100% 100%, 40px 40px, 40px 40px",
-          pointerEvents: "none",
-          zIndex: 0,
-        }}
-      />
+    <div className="min-h-screen bg-[#0e141b] text-[#dde3ed] font-sans antialiased selection:bg-[#f3be65] selection:text-[#0e141b]">
+      {/* Top Header / Tactical Navigation */}
+      <header className="sticky top-0 z-50 h-14 bg-[#0e141b]/95 backdrop-blur-md border-b border-[#4f4537] flex items-center justify-between px-6">
+        <div className="flex items-center gap-4">
+          <Link to="/" className="flex items-center gap-3 group">
+            <div className="w-8 h-8 rounded-sm bg-[#f3be65] text-[#432c00] flex items-center justify-center font-black text-sm">
+              <Shield size={18} strokeWidth={2.5} />
+            </div>
+            <span className="font-mono text-sm tracking-widest text-[#f3be65] font-bold uppercase">
+              SecureSentinel
+            </span>
+          </Link>
 
-      {/* Floating Cyber Navbar */}
-      <header
-        style={{
-          position: "sticky",
-          top: "16px",
-          zIndex: 100,
-          maxWidth: "1200px",
-          margin: "0 auto",
-          padding: "0 20px",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "14px 28px",
-            background: "rgba(10, 15, 29, 0.85)",
-            backdropFilter: "blur(20px)",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-            borderRadius: "999px",
-            boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5)",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <div
-              style={{
-                width: "36px",
-                height: "36px",
-                borderRadius: "10px",
-                background: "linear-gradient(135deg, #00f0ff 0%, #00e699 100%)",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                color: "#050811",
-                boxShadow: "0 0 15px rgba(0, 240, 255, 0.5)",
-              }}
+          <div className="hidden sm:flex items-center gap-2 pl-4 border-l border-[#4f4537]">
+            <span className="text-[10px] font-mono uppercase bg-[#ff887c] text-[#410002] px-2 py-[2px] font-semibold">
+              Live Stream
+            </span>
+            <span className="font-mono text-xs text-[#d3c4b2] animate-pulse">
+              SCANNING NODE_08...
+            </span>
+          </div>
+        </div>
+
+        <nav className="hidden md:flex items-center gap-6 text-xs font-mono tracking-wider uppercase text-[#d3c4b2]">
+          <a href="#capabilities" className="hover:text-[#f3be65] transition-colors">
+            Capabilities
+          </a>
+          <a href="#avalanche-sandbox" className="hover:text-[#f3be65] transition-colors text-[#f3be65]">
+            [Avalanche Sandbox]
+          </a>
+          <a href="#operations" className="hover:text-[#f3be65] transition-colors">
+            Operations Center
+          </a>
+        </nav>
+
+        <div className="flex items-center gap-3">
+          {isAuth ? (
+            <Link
+              to="/dashboard"
+              className="bg-[#f3be65] text-[#0e141b] font-mono text-xs font-bold px-4 py-2 hover:bg-[#d4a24c] transition-colors uppercase tracking-wider flex items-center gap-2"
             >
-              <Shield size={20} strokeWidth={2.5} />
-            </div>
-            <div>
-              <span style={{ fontWeight: "800", fontSize: "17px", letterSpacing: "-0.5px", color: "#fff" }}>
-                Secure<span style={{ color: "#00f0ff" }}>Sentinel</span>
-              </span>
-            </div>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: "28px" }}>
-            <a href="#features" style={{ color: "#94a3b8", fontSize: "14px", fontWeight: "500" }}>Features</a>
-            <a href="#architecture" style={{ color: "#94a3b8", fontSize: "14px", fontWeight: "500" }}>Architecture</a>
-            <a href="#multicloud" style={{ color: "#94a3b8", fontSize: "14px", fontWeight: "500" }}>Multi-Cloud</a>
-            <a href="#security" style={{ color: "#94a3b8", fontSize: "14px", fontWeight: "500" }}>Zero-Trust</a>
-          </div>
-
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            {isAuth ? (
+              Go to Console <ArrowRight size={14} />
+            </Link>
+          ) : (
+            <div className="flex items-center gap-2">
               <Link
-                to="/dashboard"
-                style={{
-                  background: "linear-gradient(135deg, #00f0ff 0%, #00e699 100%)",
-                  color: "#050811",
-                  padding: "8px 20px",
-                  borderRadius: "999px",
-                  fontSize: "13px",
-                  fontWeight: "700",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  boxShadow: "0 0 20px rgba(0, 240, 255, 0.4)",
-                }}
+                to="/login"
+                className="text-[#d3c4b2] font-mono text-xs hover:text-[#dde3ed] px-3 py-1.5 uppercase tracking-wider"
               >
-                Go to Console <ArrowRight size={15} />
+                Sign In
               </Link>
-            ) : (
-              <>
-                <Link
-                  to="/login"
-                  style={{
-                    color: "#94a3b8",
-                    fontSize: "13px",
-                    fontWeight: "600",
-                    padding: "8px 16px",
-                  }}
-                >
-                  Sign In
-                </Link>
-                <Link
-                  to="/register"
-                  style={{
-                    background: "linear-gradient(135deg, #00f0ff 0%, #00e699 100%)",
-                    color: "#050811",
-                    padding: "8px 20px",
-                    borderRadius: "999px",
-                    fontSize: "13px",
-                    fontWeight: "700",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    boxShadow: "0 0 20px rgba(0, 240, 255, 0.4)",
-                  }}
-                >
-                  Launch Console <ArrowRight size={15} />
-                </Link>
-              </>
-            )}
-          </div>
+              <Link
+                to="/login"
+                className="bg-[#f3be65] text-[#0e141b] font-mono text-xs font-bold px-4 py-2 hover:bg-[#d4a24c] transition-colors uppercase tracking-wider flex items-center gap-2"
+              >
+                Deploy Sentinel <ArrowRight size={14} />
+              </Link>
+            </div>
+          )}
         </div>
       </header>
 
-      {/* Main Hero Section */}
-      <section
-        style={{
-          position: "relative",
-          zIndex: 10,
-          maxWidth: "1200px",
-          margin: "0 auto",
-          padding: "100px 20px 80px",
-          textAlign: "center",
-        }}
-      >
-        {/* Live Operational Ticker */}
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "10px",
-            background: "rgba(0, 240, 255, 0.08)",
-            border: "1px solid rgba(0, 240, 255, 0.25)",
-            padding: "6px 18px",
-            borderRadius: "999px",
-            marginBottom: "28px",
-          }}
-        >
-          <span
-            style={{
-              width: "8px",
-              height: "8px",
-              borderRadius: "50%",
-              background: "#00e699",
-              boxShadow: "0 0 10px #00e699",
-            }}
-          />
-          <span
-            style={{
-              fontSize: "12px",
-              fontFamily: "'JetBrains Mono', monospace",
-              color: "#00f0ff",
-              letterSpacing: "0.5px",
-            }}
-          >
-            {tickers[tickerIndex]}
-          </span>
+      {/* Hero Section */}
+      <section className="relative min-h-[640px] flex flex-col justify-center px-6 py-16 bg-[#090f15] border-b border-[#4f4537] overflow-hidden">
+        {/* Abstract Tech Background */}
+        <div className="absolute inset-0 pointer-events-none opacity-25">
+          <svg className="w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
+            <defs>
+              <pattern id="grid-stitch" width="4" height="4" patternUnits="userSpaceOnUse">
+                <path d="M 4 0 L 0 0 0 4" fill="none" stroke="#4f4537" strokeWidth="0.5" />
+              </pattern>
+            </defs>
+            <rect width="100" height="100" fill="url(#grid-stitch)" />
+          </svg>
         </div>
 
-        <h1
-          style={{
-            fontSize: "clamp(42px, 6vw, 76px)",
-            fontWeight: "900",
-            letterSpacing: "-2px",
-            lineHeight: "1.05",
-            maxWidth: "960px",
-            margin: "0 auto 24px",
-            color: "#ffffff",
-          }}
-        >
-          Provable Cloud Integrity.{" "}
-          <span
-            style={{
-              background: "linear-gradient(135deg, #00f0ff 0%, #00e699 50%, #a855f7 100%)",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
-          >
-            Zero-Drift Security.
-          </span>
-        </h1>
-
-        <p
-          style={{
-            fontSize: "clamp(16px, 2vw, 20px)",
-            color: "#94a3b8",
-            maxWidth: "720px",
-            margin: "0 auto 40px",
-            lineHeight: "1.6",
-          }}
-        >
-          Continuous cryptographic verification for enterprise files across AWS S3, Google Cloud Storage,
-          Azure Blob, and Private Vaults. Instant tamper detection with mathematical proof.
-        </p>
-
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
-          <Link
-            to={isAuth ? "/dashboard" : "/register"}
-            style={{
-              background: "linear-gradient(135deg, #00f0ff 0%, #00e699 100%)",
-              color: "#050811",
-              padding: "16px 36px",
-              borderRadius: "14px",
-              fontSize: "16px",
-              fontWeight: "800",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "10px",
-              boxShadow: "0 10px 30px rgba(0, 240, 255, 0.4)",
-              transition: "transform 0.2s ease",
-            }}
-          >
-            Launch Cyber Console <ArrowRight size={18} />
-          </Link>
-
-          <Link
-            to={isAuth ? "/verify" : "/login"}
-            style={{
-              background: "rgba(13, 21, 39, 0.8)",
-              color: "#f8fafc",
-              border: "1px solid rgba(255, 255, 255, 0.15)",
-              padding: "16px 32px",
-              borderRadius: "14px",
-              fontSize: "16px",
-              fontWeight: "600",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "10px",
-              backdropFilter: "blur(12px)",
-            }}
-          >
-            <Shield size={18} color="#00f0ff" />
-            Instant File Audit
-          </Link>
-        </div>
-
-        {/* Live Metrics Counter Bar */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-            gap: "20px",
-            marginTop: "80px",
-            padding: "30px",
-            background: "rgba(13, 21, 39, 0.6)",
-            border: "1px solid rgba(255, 255, 255, 0.08)",
-            borderRadius: "20px",
-            backdropFilter: "blur(16px)",
-          }}
-        >
-          <div>
-            <div style={{ fontSize: "36px", fontWeight: "800", color: "#00f0ff", fontFamily: "'JetBrains Mono', monospace" }}>
-              256-BIT
+        <div className="max-w-[1200px] mx-auto w-full relative z-10 grid grid-cols-1 xl:grid-cols-12 gap-8 items-center">
+          {/* Hero Content */}
+          <div className="xl:col-span-7 flex flex-col gap-6">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 bg-[#f3be65] animate-pulse"></span>
+              <span className="font-mono text-xs text-[#f3be65] tracking-widest uppercase">
+                System Initialization Complete
+              </span>
             </div>
-            <div style={{ color: "#94a3b8", fontSize: "13px", marginTop: "4px" }}>SHA-256 Cryptographic Anchoring</div>
+
+            <h1 className="text-4xl md:text-5xl xl:text-6xl font-black text-[#dde3ed] tracking-tight leading-tight">
+              Absolute Defense,<br />
+              <span className="text-[#9c8f7e]">Zero Compromise.</span>
+            </h1>
+
+            <p className="text-[#d3c4b2] text-base md:text-lg max-w-[580px] leading-relaxed">
+              SecureSentinel delivers military-grade cryptographic data possession and automated tamper mitigation. Engineered for low-fatigue continuous monitoring and instantaneous anomaly resolution.
+            </p>
+
+            <div className="flex flex-wrap gap-4 mt-2">
+              <Link
+                to={isAuth ? "/dashboard" : "/login"}
+                className="bg-[#f3be65] text-[#0e141b] font-mono text-xs font-bold px-6 py-3.5 hover:bg-[#d4a24c] transition-colors uppercase tracking-wider flex items-center gap-2 shadow-lg"
+              >
+                Deploy Sentinel <ChevronRight size={16} />
+              </Link>
+              <a
+                href="#avalanche-sandbox"
+                className="border border-[#4f4537] text-[#dde3ed] hover:bg-[#1a2027] transition-colors font-mono text-xs px-6 py-3.5 flex items-center gap-2 uppercase tracking-wider"
+              >
+                <Terminal size={16} className="text-[#f3be65]" /> Test Avalanche Sandbox
+              </a>
+            </div>
           </div>
-          <div>
-            <div style={{ fontSize: "36px", fontWeight: "800", color: "#00e699", fontFamily: "'JetBrains Mono', monospace" }}>
-              &lt; 150ms
+
+          {/* Hero Status Panel (Monospace Readout) */}
+          <div className="xl:col-span-5 w-full bg-[#1a2027] border border-[#4f4537] p-5 relative overflow-hidden">
+            {/* Corner Accents */}
+            <div className="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-[#f3be65]"></div>
+            <div className="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-[#f3be65]"></div>
+            <div className="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-[#f3be65]"></div>
+            <div className="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-[#f3be65]"></div>
+
+            <div className="flex justify-between items-center mb-4 border-b border-[#4f4537] pb-3">
+              <span className="font-mono text-xs text-[#d3c4b2] uppercase tracking-wider">Live Telemetry</span>
+              <span className="font-mono text-xs text-[#8cd7a5] flex items-center gap-1.5 font-bold">
+                <span className="w-2 h-2 bg-[#8cd7a5]"></span> [■] SECURE
+              </span>
             </div>
-            <div style={{ color: "#94a3b8", fontSize: "13px", marginTop: "4px" }}>Integrity Challenge Latency</div>
-          </div>
-          <div>
-            <div style={{ fontSize: "36px", fontWeight: "800", color: "#a855f7", fontFamily: "'JetBrains Mono', monospace" }}>
-              4 DRIVERS
+
+            <div className="font-mono text-xs text-[#d3c4b2] flex flex-col gap-2">
+              <div className="flex justify-between py-1 border-b border-[#242a32]">
+                <span className="text-[#dde3ed]">&gt; SYSTEM_UPTIME</span>
+                <span className="text-[#8cd7a5]">99.999%</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-[#242a32]">
+                <span className="text-[#dde3ed]">&gt; ACTIVE_NODES</span>
+                <span>4,092 CLOUD REPLICAS</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-[#242a32]">
+                <span className="text-[#dde3ed]">&gt; THREAT_VECTORS</span>
+                <span className="text-[#8cd7a5]">0 DETECTED</span>
+              </div>
+              <div className="flex justify-between py-1 border-b border-[#242a32]">
+                <span className="text-[#dde3ed]">&gt; CRYPTOGRAPHIC_ALGO</span>
+                <span>SHA-256 + AES-GCM</span>
+              </div>
+              <div className="flex justify-between py-1">
+                <span className="text-[#dde3ed]">&gt; AUDIT_LATENCY</span>
+                <span className="text-[#f3be65]">sub-12ms</span>
+              </div>
+              <div className="mt-2 text-[#f3be65] font-bold">
+                ROOT_OPERATOR_STATUS: READY {cursorVisible ? "_" : " "}
+              </div>
             </div>
-            <div style={{ color: "#94a3b8", fontSize: "13px", marginTop: "4px" }}>AWS S3 • GCS • Azure • Local</div>
-          </div>
-          <div>
-            <div style={{ fontSize: "36px", fontWeight: "800", color: "#ffffff", fontFamily: "'JetBrains Mono', monospace" }}>
-              100%
-            </div>
-            <div style={{ color: "#94a3b8", fontSize: "13px", marginTop: "4px" }}>Deterministic Tamper Detection</div>
           </div>
         </div>
       </section>
 
-      {/* Interactive Pipeline / Architecture Section */}
-      <section id="architecture" style={{ position: "relative", zIndex: 10, maxWidth: "1200px", margin: "80px auto", padding: "0 20px" }}>
-        <div style={{ textAlign: "center", marginBottom: "50px" }}>
-          <p style={{ color: "#00f0ff", fontFamily: "'JetBrains Mono', monospace", fontSize: "12px", letterSpacing: "2px" }}>
-            ZERO-TRUST ARCHITECTURE
-          </p>
-          <h2 style={{ fontSize: "36px", fontWeight: "800", color: "#fff", marginTop: "8px" }}>
-            Continuous Integrity Verification Pipeline
-          </h2>
-          <p style={{ color: "#94a3b8", maxWidth: "600px", margin: "10px auto 0" }}>
-            How SecureSentinel validates every single byte against remote silent corruption and unauthorized tampering.
-          </p>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "20px" }}>
-          {[
-            {
-              step: "01",
-              title: "Chunk-Stream Ingestion",
-              desc: "Files are streamed in 1MB memory-safe buffers. Hash computation occurs progressively on-the-fly to protect against DoS attacks.",
-              icon: <Layers size={24} color="#00f0ff" />,
-            },
-            {
-              step: "02",
-              title: "Multi-Cloud Cryptographic Anchoring",
-              desc: "Stored securely into your selected cloud provider (AWS S3, GCS, Azure Blob, or Local) with sanitization and UUID isolation.",
-              icon: <Cloud size={24} color="#00e699" />,
-            },
-            {
-              step: "03",
-              title: "Deterministic PDP Challenge",
-              desc: "Integrity verification audits compare current byte fingerprints against the immutable baseline hash register in constant time.",
-              icon: <FileCheck size={24} color="#a855f7" />,
-            },
-            {
-              step: "04",
-              title: "Instant Incident & PDF Audit",
-              desc: "Tampering immediately trips high-priority SOC alarms and generates downloadable cryptographic verification certificates.",
-              icon: <Shield size={24} color="#ff3366" />,
-            },
-          ].map((card) => (
-            <div
-              key={card.step}
-              style={{
-                background: "rgba(13, 21, 39, 0.7)",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
-                borderRadius: "18px",
-                padding: "30px",
-                position: "relative",
-                transition: "all 0.3s ease",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "12px",
-                  fontFamily: "'JetBrains Mono', monospace",
-                  color: "#64748b",
-                  marginBottom: "16px",
-                  fontWeight: "700",
-                }}
-              >
-                PHASE // {card.step}
+      {/* Interactive Hash Avalanche Sandbox (Hackathon Feature) */}
+      <section id="avalanche-sandbox" className="py-16 px-6 bg-[#0e141b] border-b border-[#4f4537]">
+        <div className="max-w-[1200px] mx-auto w-full">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-mono uppercase bg-[#f3be65] text-[#0e141b] px-2 py-0.5 font-bold">
+                  Interactive Demo
+                </span>
+                <span className="font-mono text-xs text-[#8cd7a5]">NIST SP 800-88 AUDIT GRADE</span>
               </div>
-              <div style={{ marginBottom: "16px" }}>{card.icon}</div>
-              <h3 style={{ fontSize: "18px", fontWeight: "700", color: "#fff", marginBottom: "10px" }}>
-                {card.title}
-              </h3>
-              <p style={{ fontSize: "14px", color: "#94a3b8", lineHeight: "1.6" }}>
-                {card.desc}
+              <h2 className="text-2xl md:text-3xl font-bold text-[#dde3ed]">
+                Cryptographic Avalanche Effect Sandbox
+              </h2>
+              <p className="text-sm text-[#d3c4b2] max-w-[650px] mt-1">
+                A hallmark of cryptographically secure hash functions: modifying even a single character flips roughly 50% of the output bits across the entire 256-bit digest. Test it live below!
               </p>
             </div>
-          ))}
-        </div>
-      </section>
 
-      {/* Feature Matrix Section */}
-      <section id="features" style={{ position: "relative", zIndex: 10, maxWidth: "1200px", margin: "100px auto", padding: "0 20px" }}>
-        <div style={{ textAlign: "center", marginBottom: "50px" }}>
-          <p style={{ color: "#00e699", fontFamily: "'JetBrains Mono', monospace", fontSize: "12px", letterSpacing: "2px" }}>
-            CYBER PLATFORM CAPABILITIES
-          </p>
-          <h2 style={{ fontSize: "36px", fontWeight: "800", color: "#fff", marginTop: "8px" }}>
-            Engineered for Mission-Critical Data Security
-          </h2>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "24px" }}>
-          {[
-            {
-              icon: <Zap size={24} color="#00f0ff" />,
-              title: "Sub-Second Integrity Verification",
-              desc: "Compare stored cryptographic hashes with uploaded evidence in milliseconds without exposing raw cloud storage credentials to end users.",
-            },
-            {
-              icon: <Globe size={24} color="#00e699" />,
-              title: "Unified Multi-Cloud Engine",
-              desc: "Seamlessly switch storage targets across Amazon S3, Google Cloud Storage, Microsoft Azure Blob, or local air-gapped disks with zero code changes.",
-            },
-            {
-              icon: <AlertTriangle size={24} color="#ff3366" />,
-              title: "Real-Time Threat Detection",
-              desc: "Instant avalanche effect detection: even a single modified bit triggers an immediate security alert and logs an immutable audit trail entry.",
-            },
-            {
-              icon: <Terminal size={24} color="#a855f7" />,
-              title: "Automated ReportLab Audit Reports",
-              desc: "Generate court-admissible, cryptographically certified PDF verification reports complete with execution timestamps and SHA-256 proofs.",
-            },
-            {
-              icon: <Lock size={24} color="#f59e0b" />,
-              title: "Salted Bcrypt & JWT Zero-Trust",
-              desc: "Hardware-hardened salted bcrypt password hashing, scoped JWT token sessions, and complete multi-tenant user isolation.",
-            },
-            {
-              icon: <Activity size={24} color="#00f0ff" />,
-              title: "Live SOC Metrics & Health Checks",
-              desc: "Monitor threat index, storage provider reachability, and historical integrity verification velocity with interactive time-series charts.",
-            },
-          ].map((feat, i) => (
-            <div
-              key={i}
-              style={{
-                background: "rgba(13, 21, 39, 0.5)",
-                border: "1px solid rgba(255, 255, 255, 0.08)",
-                borderRadius: "18px",
-                padding: "32px",
-                display: "flex",
-                flexDirection: "column",
-                gap: "14px",
+            <button
+              onClick={() => {
+                setBaseText("SECURE_SENTINEL_INTEGRITY_PAYLOAD_V4");
+                setTamperText("SECURE_SENTINEL_INTEGRITY_PAYLOAD_V5");
               }}
+              className="border border-[#4f4537] hover:border-[#f3be65] text-xs font-mono text-[#d3c4b2] hover:text-[#f3be65] px-4 py-2 self-start md:self-auto flex items-center gap-2"
             >
-              <div
-                style={{
-                  width: "48px",
-                  height: "48px",
-                  borderRadius: "12px",
-                  background: "rgba(255, 255, 255, 0.04)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                {feat.icon}
+              <RefreshCw size={14} /> Reset Nominal Strings
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Input 1: Nominal Baseline */}
+            <div className="bg-[#1a2027] border border-[#4f4537] p-5">
+              <div className="flex justify-between items-center mb-3">
+                <span className="font-mono text-xs text-[#8cd7a5] font-bold uppercase">
+                  [■] Nominal Baseline (Source A)
+                </span>
+                <span className="text-[10px] font-mono text-[#9c8f7e]">EDITABLE INPUT</span>
               </div>
-              <h3 style={{ fontSize: "19px", fontWeight: "700", color: "#fff" }}>{feat.title}</h3>
-              <p style={{ color: "#94a3b8", fontSize: "14px", lineHeight: "1.6" }}>{feat.desc}</p>
+              <input
+                type="text"
+                value={baseText}
+                onChange={(e) => setBaseText(e.target.value)}
+                className="w-full bg-[#090f15] border border-[#4f4537] focus:border-[#f3be65] text-[#dde3ed] font-mono text-sm px-3 py-2.5 mb-4 outline-none"
+                placeholder="Type baseline text..."
+              />
+              <div className="text-[11px] font-mono text-[#9c8f7e] uppercase mb-1">
+                256-Bit Cryptographic Hash Digest:
+              </div>
+              <div className="bg-[#090f15] border border-[#4f4537] p-3 font-mono text-xs break-all text-[#8cd7a5] leading-relaxed">
+                {baseHash || "Calculating..."}
+              </div>
             </div>
-          ))}
+
+            {/* Input 2: Comparison / Tampered */}
+            <div className="bg-[#1a2027] border border-[#4f4537] p-5">
+              <div className="flex justify-between items-center mb-3">
+                <span className="font-mono text-xs text-[#ff887c] font-bold uppercase">
+                  [▲] Comparison / Modified Payload (Source B)
+                </span>
+                <span className="text-[10px] font-mono text-[#9c8f7e]">EDITABLE INPUT</span>
+              </div>
+              <input
+                type="text"
+                value={tamperText}
+                onChange={(e) => setTamperText(e.target.value)}
+                className="w-full bg-[#090f15] border border-[#4f4537] focus:border-[#ff887c] text-[#dde3ed] font-mono text-sm px-3 py-2.5 mb-4 outline-none"
+                placeholder="Type comparison text..."
+              />
+              <div className="text-[11px] font-mono text-[#9c8f7e] uppercase mb-1">
+                256-Bit Cryptographic Hash Digest:
+              </div>
+              <div className="bg-[#090f15] border border-[#4f4537] p-3 font-mono text-xs break-all text-[#ff887c] leading-relaxed">
+                {tamperHash || "Calculating..."}
+              </div>
+            </div>
+          </div>
+
+          {/* Avalanche Live Analytics Readout */}
+          <div className="mt-6 bg-[#161c23] border border-[#4f4537] p-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+              <div>
+                <div className="text-[11px] font-mono text-[#9c8f7e] uppercase">Status Verification</div>
+                <div className="text-lg font-mono font-bold mt-1">
+                  {baseHash === tamperHash ? (
+                    <span className="text-[#8cd7a5]">[■] IDENTICAL MATCH (0 TAMPER)</span>
+                  ) : (
+                    <span className="text-[#ff887c]">[▲] AVALANCHE DIVERGENCE DETECTED</span>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <div className="text-[11px] font-mono text-[#9c8f7e] uppercase">Entropy Bits Altered</div>
+                <div className="text-lg font-mono font-bold mt-1 text-[#f3be65]">
+                  {diffBits} of 256 bits ({percent}%)
+                </div>
+              </div>
+
+              <div>
+                <div className="text-[11px] font-mono text-[#9c8f7e] uppercase">Avalanche Efficiency</div>
+                <div className="w-full bg-[#090f15] h-3 border border-[#4f4537] mt-2 overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-[#f3be65] to-[#8cd7a5] transition-all duration-300"
+                    style={{ width: `${percent}%` }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Security Compliance Banner */}
-      <section
-        id="security"
-        style={{
-          position: "relative",
-          zIndex: 10,
-          maxWidth: "1200px",
-          margin: "80px auto",
-          padding: "40px",
-          background: "linear-gradient(135deg, rgba(0, 240, 255, 0.08) 0%, rgba(0, 230, 153, 0.04) 100%)",
-          border: "1px solid rgba(0, 240, 255, 0.2)",
-          borderRadius: "24px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "24px",
-        }}
-      >
-        <div>
-          <span style={{ fontSize: "12px", fontFamily: "'JetBrains Mono', monospace", color: "#00f0ff" }}>
-            COMPLIANCE & INTEGRITY READY
-          </span>
-          <h2 style={{ fontSize: "28px", fontWeight: "800", color: "#fff", marginTop: "6px" }}>
-            Enterprise Zero-Knowledge Verification
-          </h2>
-          <p style={{ color: "#94a3b8", fontSize: "14px", maxWidth: "600px", marginTop: "8px" }}>
-            Compliant with NIST SP 800-88 cryptographic sanitization, ISO 27001 auditability, and SOC 2 Type II integrity monitoring requirements.
-          </p>
-        </div>
+      {/* Operational Capabilities Grid */}
+      <section id="capabilities" className="py-16 px-6 bg-[#090f15] border-b border-[#4f4537]">
+        <div className="max-w-[1200px] mx-auto w-full">
+          <div className="mb-8">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#dde3ed] mb-1">Operational Capabilities</h2>
+            <p className="text-sm text-[#d3c4b2]">Precision instruments for automated multi-cloud data integrity.</p>
+          </div>
 
-        <Link
-          to={isAuth ? "/dashboard" : "/register"}
-          style={{
-            background: "linear-gradient(135deg, #00f0ff 0%, #00e699 100%)",
-            color: "#050811",
-            padding: "14px 30px",
-            borderRadius: "12px",
-            fontWeight: "800",
-            fontSize: "15px",
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "8px",
-          }}
-        >
-          Get Started Now <ChevronRight size={18} />
-        </Link>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {/* Feature 1 */}
+            <div className="bg-[#1a2027] p-6 border border-[#4f4537] hover:bg-[#242a32] transition-colors group">
+              <div className="w-10 h-10 bg-[#2f353d] flex items-center justify-center mb-4 border border-[#4f4537] group-hover:border-[#f3be65] transition-colors">
+                <Activity size={20} className="text-[#f3be65]" />
+              </div>
+              <h3 className="font-semibold text-[#dde3ed] text-base mb-2">Provable Data Possession</h3>
+              <p className="text-xs text-[#d3c4b2] mb-4 leading-relaxed">
+                Verify cloud file integrity without downloading complete payloads. Mathematically guarantees storage consistency with zero bandwidth overhead.
+              </p>
+              <div className="pt-3 border-t border-[#4f4537] font-mono text-[11px] text-[#9c8f7e]">
+                MODULE: PDP-CORE_v4.2
+              </div>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="bg-[#1a2027] p-6 border border-[#4f4537] hover:bg-[#242a32] transition-colors group">
+              <div className="w-10 h-10 bg-[#2f353d] flex items-center justify-center mb-4 border border-[#4f4537] group-hover:border-[#f3be65] transition-colors">
+                <Shield size={20} className="text-[#f3be65]" />
+              </div>
+              <h3 className="font-semibold text-[#dde3ed] text-base mb-2">Automated Incident Alerting</h3>
+              <p className="text-xs text-[#d3c4b2] mb-4 leading-relaxed">
+                Instantaneous detection and quarantine of altered files. Audit logs capture unauthorized tamper attempts with full forensic timestamps.
+              </p>
+              <div className="pt-3 border-t border-[#4f4537] font-mono text-[11px] text-[#9c8f7e]">
+                MODULE: AUTO-ALERT_v1.9
+              </div>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="bg-[#1a2027] p-6 border border-[#4f4537] hover:bg-[#242a32] transition-colors group">
+              <div className="w-10 h-10 bg-[#2f353d] flex items-center justify-center mb-4 border border-[#4f4537] group-hover:border-[#f3be65] transition-colors">
+                <FileCheck size={20} className="text-[#f3be65]" />
+              </div>
+              <h3 className="font-semibold text-[#dde3ed] text-base mb-2">Certified PDF Audit Reports</h3>
+              <p className="text-xs text-[#d3c4b2] mb-4 leading-relaxed">
+                Generate cryptographically certified verification certificates via automated ReportLab engine, compliant with NIST SP 800-88 and SOC 2 Type II.
+              </p>
+              <div className="pt-3 border-t border-[#4f4537] font-mono text-[11px] text-[#9c8f7e]">
+                MODULE: AUDIT-CERT_v2.0
+              </div>
+            </div>
+
+            {/* Feature 4 */}
+            <div className="bg-[#1a2027] p-6 border border-[#4f4537] hover:bg-[#242a32] transition-colors group md:col-span-2 xl:col-span-1">
+              <div className="w-10 h-10 bg-[#2f353d] flex items-center justify-center mb-4 border border-[#4f4537] group-hover:border-[#f3be65] transition-colors">
+                <Layers size={20} className="text-[#f3be65]" />
+              </div>
+              <h3 className="font-semibold text-[#dde3ed] text-base mb-2">Multi-Cloud Storage Hub</h3>
+              <p className="text-xs text-[#d3c4b2] mb-4 leading-relaxed">
+                Seamless multi-tenant switching across AWS S3, Google Cloud Storage, Azure Blob Storage, and air-gapped Local Vaults.
+              </p>
+              <div className="pt-3 border-t border-[#4f4537] font-mono text-[11px] text-[#9c8f7e]">
+                MODULE: MULTI-CLOUD_v3.1
+              </div>
+            </div>
+
+            {/* Visual Feature (Span 2 cols) */}
+            <div className="bg-[#1a2027] border border-[#4f4537] p-6 md:col-span-2 xl:col-span-2 flex flex-col justify-between relative overflow-hidden">
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="w-2 h-2 bg-[#ff887c] animate-pulse"></span>
+                  <span className="font-mono text-xs text-[#ff887c] tracking-widest uppercase">
+                    Live Telemetry Network
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-[#dde3ed] mb-2">
+                  Zero-Knowledge Cryptographic Matrix
+                </h3>
+                <p className="text-xs text-[#d3c4b2] max-w-[500px] leading-relaxed">
+                  Aggregating cryptographic hashes and verifiable audit logs across all operator nodes with zero raw data exposure.
+                </p>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-[#4f4537] flex flex-wrap items-center justify-between gap-4">
+                <div className="flex gap-4 text-xs font-mono text-[#d3c4b2]">
+                  <span>[■] AWS S3: OK</span>
+                  <span>[■] GCS: OK</span>
+                  <span>[■] AZURE: OK</span>
+                </div>
+                <Link
+                  to={isAuth ? "/dashboard" : "/login"}
+                  className="bg-[#2f353d] border border-[#4f4537] hover:border-[#f3be65] text-[#dde3ed] font-mono text-xs px-4 py-2 uppercase tracking-wider"
+                >
+                  Open Vault Console
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
-      {/* Cyber Footer */}
-      <footer
-        style={{
-          position: "relative",
-          zIndex: 10,
-          borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-          padding: "40px 20px",
-          maxWidth: "1200px",
-          margin: "0 auto",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "16px",
-          color: "#64748b",
-          fontSize: "13px",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <Shield size={18} color="#00f0ff" />
-          <span style={{ color: "#fff", fontWeight: "700" }}>SecureSentinel</span>
-          <span>© 2026 Enterprise Security Operations. All rights reserved.</span>
-        </div>
+      {/* Global Operations Map & Regional Node Telemetry */}
+      <section id="operations" className="py-16 px-6 bg-[#0e141b] border-b border-[#4f4537]">
+        <div className="max-w-[1200px] mx-auto w-full grid grid-cols-1 xl:grid-cols-2 gap-8 items-center">
+          <div className="flex flex-col gap-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-[#dde3ed]">Distributed Operations Center</h2>
+            <p className="text-sm text-[#d3c4b2] leading-relaxed">
+              Monitor global vault node status, hash anchoring pipelines, and regional latency with sub-millisecond precision.
+            </p>
+            <div className="grid grid-cols-2 gap-3 mt-2">
+              <div className="border border-[#4f4537] bg-[#1a2027] p-3">
+                <div className="font-mono text-[10px] text-[#9c8f7e] uppercase mb-1">Primary Node</div>
+                <div className="font-mono text-sm font-bold text-[#dde3ed]">us-east-1 (VAULT_01)</div>
+              </div>
+              <div className="border border-[#4f4537] bg-[#1a2027] p-3">
+                <div className="font-mono text-[10px] text-[#9c8f7e] uppercase mb-1">Failover Replica</div>
+                <div className="font-mono text-sm font-bold text-[#dde3ed]">eu-central-1 (REPL_02)</div>
+              </div>
+            </div>
+          </div>
 
-        <div style={{ display: "flex", gap: "20px" }}>
-          <a href="#features" style={{ color: "#94a3b8" }}>Capabilities</a>
-          <a href="#architecture" style={{ color: "#94a3b8" }}>Architecture</a>
-          <Link to="/login" style={{ color: "#94a3b8" }}>Operator Login</Link>
+          <div className="w-full bg-[#1a2027] border border-[#4f4537] p-5">
+            <div className="font-mono text-xs text-[#d3c4b2] border-b border-[#4f4537] pb-3 mb-4 flex justify-between">
+              <span>REGIONAL CLUSTER HEALTH</span>
+              <span className="text-[#8cd7a5]">[■] ALL SYSTEMS OPERATIONAL</span>
+            </div>
+            <div className="font-mono text-xs flex flex-col gap-3">
+              <div className="flex justify-between items-center p-2 bg-[#090f15] border border-[#242a32]">
+                <span className="text-[#dde3ed]">[■] US-EAST (ASHBURN): NOMINAL</span>
+                <span className="text-[#8cd7a5]">8ms</span>
+              </div>
+              <div className="flex justify-between items-center p-2 bg-[#090f15] border border-[#242a32]">
+                <span className="text-[#dde3ed]">[■] EU-WEST (FRANKFURT): NOMINAL</span>
+                <span className="text-[#8cd7a5]">24ms</span>
+              </div>
+              <div className="flex justify-between items-center p-2 bg-[#090f15] border border-[#242a32]">
+                <span className="text-[#dde3ed]">[■] AP-SOUTHEAST (SINGAPORE): SYNCING</span>
+                <span className="text-[#f3be65]">58ms</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-[#090f15] py-12 px-6">
+        <div className="max-w-[1200px] mx-auto w-full grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="md:col-span-2">
+            <div className="flex items-center gap-2 mb-3">
+              <Shield size={18} className="text-[#f3be65]" />
+              <span className="font-mono text-sm font-bold text-[#f3be65] tracking-widest uppercase">
+                SecureSentinel
+              </span>
+            </div>
+            <p className="text-xs text-[#d3c4b2] max-w-[320px] leading-relaxed">
+              Cryptographic data possession and automated multi-cloud integrity engine.
+            </p>
+            <div className="mt-4 font-mono text-[11px] text-[#9c8f7e]">
+              SECURESENTINEL VERSION 4.2.1-STABLE [HACKATHON RELEASE]
+            </div>
+          </div>
+
+          <div>
+            <h4 className="font-mono text-xs font-bold text-[#dde3ed] uppercase mb-3 tracking-widest">
+              Protocols
+            </h4>
+            <ul className="flex flex-col gap-2 text-xs text-[#d3c4b2]">
+              <li>NIST SP 800-88 Audit</li>
+              <li>Provable Data Possession</li>
+              <li>SHA-256 Digest Matrix</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-mono text-xs font-bold text-[#dde3ed] uppercase mb-3 tracking-widest">
+              Platform
+            </h4>
+            <ul className="flex flex-col gap-2 text-xs text-[#d3c4b2]">
+              <li>AWS S3 Cloud Hub</li>
+              <li>Google Cloud Storage</li>
+              <li>Azure Blob Storage</li>
+            </ul>
+          </div>
         </div>
       </footer>
     </div>
