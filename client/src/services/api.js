@@ -4,7 +4,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000,
+  timeout: 90000, // 90s to comfortably tolerate Render free-tier cold starts
 });
 
 // Automatically attach JWT to every request
@@ -19,7 +19,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Handle expired/invalid tokens gracefully without breaking login/register error handling
+// Handle expired/invalid tokens and cold start network errors gracefully
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -30,9 +30,18 @@ api.interceptors.response.use(
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       localStorage.removeItem("username");
-      if (window.location.pathname !== "/" && window.location.pathname !== "/login" && window.location.pathname !== "/register") {
+      if (
+        window.location.pathname !== "/" &&
+        window.location.pathname !== "/login" &&
+        window.location.pathname !== "/register"
+      ) {
         window.location.href = "/login";
       }
+    }
+
+    // Enhance Network Error message for users during Render cold boots
+    if (!error.response && error.message === "Network Error") {
+      error.message = "Backend server is waking up (Render cold boot) or connection failed. Please retry in a few seconds.";
     }
 
     return Promise.reject(error);
