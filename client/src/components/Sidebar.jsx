@@ -1,4 +1,5 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   HardDrive,
@@ -10,6 +11,7 @@ import {
   LogOut,
   Shield,
   Activity,
+  X,
 } from "lucide-react";
 import { SentinelIcon } from "./Logo";
 import { clearAuthSession, getAuthUser } from "../services/api";
@@ -54,8 +56,29 @@ const menu = [
 
 function Sidebar() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   const user = getAuthUser() || {};
   const activeProvider = (user.preferred_cloud_provider || user.active_cloud_provider || "local").toUpperCase();
+
+  // Handle mobile drawer events and close on navigation
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const handleToggle = () => setMobileOpen((prev) => !prev);
+    const handleClose = () => setMobileOpen(false);
+
+    window.addEventListener("toggle-mobile-sidebar", handleToggle);
+    window.addEventListener("close-mobile-sidebar", handleClose);
+
+    return () => {
+      window.removeEventListener("toggle-mobile-sidebar", handleToggle);
+      window.removeEventListener("close-mobile-sidebar", handleClose);
+    };
+  }, []);
 
   const handleLogout = () => {
     clearAuthSession();
@@ -63,33 +86,61 @@ function Sidebar() {
   };
 
   return (
-    <aside className="sidebar">
-      <div>
-        <div className="sidebar-logo" style={{ cursor: "pointer" }} onClick={() => navigate("/dashboard")}>
-          <div style={{ filter: "drop-shadow(0 0 6px rgba(243, 190, 101, 0.3))" }}>
-            <SentinelIcon size={30} />
-          </div>
-          <div>
-            <h2>SENTINEL</h2>
-            <span>SEC-OPS v4.2</span>
-          </div>
-        </div>
+    <>
+      {/* Mobile Backdrop */}
+      {mobileOpen && (
+        <div
+          className="sidebar-backdrop"
+          onClick={() => setMobileOpen(false)}
+          aria-hidden="true"
+        />
+      )}
 
-        <nav className="sidebar-nav">
-          {menu.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              className={({ isActive }) =>
-                isActive ? "sidebar-link active" : "sidebar-link"
-              }
+      <aside className={`sidebar ${mobileOpen ? "mobile-open" : ""}`}>
+        <div>
+          <div
+            className="sidebar-logo"
+            style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+          >
+            <div
+              style={{ display: "flex", alignItems: "center", gap: "12px", cursor: "pointer" }}
+              onClick={() => navigate("/dashboard")}
             >
-              <span className="sidebar-icon">{item.icon}</span>
-              <span>{item.name}</span>
-            </NavLink>
-          ))}
-        </nav>
-      </div>
+              <div style={{ filter: "drop-shadow(0 0 6px rgba(243, 190, 101, 0.3))" }}>
+                <SentinelIcon size={30} />
+              </div>
+              <div>
+                <h2>SENTINEL</h2>
+                <span>SEC-OPS v4.2</span>
+              </div>
+            </div>
+
+            {/* Mobile Close Button */}
+            <button
+              className="sidebar-close-btn"
+              onClick={() => setMobileOpen(false)}
+              title="Close Menu"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          <nav className="sidebar-nav">
+            {menu.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                onClick={() => setMobileOpen(false)}
+                className={({ isActive }) =>
+                  isActive ? "sidebar-link active" : "sidebar-link"
+                }
+              >
+                <span className="sidebar-icon">{item.icon}</span>
+                <span>{item.name}</span>
+              </NavLink>
+            ))}
+          </nav>
+        </div>
 
       <div className="sidebar-footer">
         {/* Active Storage Driver Status */}
@@ -154,9 +205,11 @@ function Sidebar() {
           Sign Out
         </button>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }
 
 export default Sidebar;
+
 

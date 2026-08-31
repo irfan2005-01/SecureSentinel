@@ -42,10 +42,12 @@ function VerifyCard() {
     setResult(null);
 
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", file, file.name || "candidate_asset.bin");
 
     try {
-      const res = await api.post("/api/verify/verify", formData);
+      const res = await api.post("/api/verify/verify", formData, {
+        timeout: 120000,
+      });
       setResult({
         ...res.data,
         filename: file.name,
@@ -69,6 +71,9 @@ function VerifyCard() {
       });
     } finally {
       setVerifying(false);
+      if (inputRef.current) {
+        inputRef.current.value = "";
+      }
     }
   };
 
@@ -148,9 +153,10 @@ function VerifyCard() {
         </div>
 
         <input
-          hidden
-          type="file"
           ref={inputRef}
+          type="file"
+          accept="*/*"
+          style={{ display: "none" }}
           onChange={(e) => {
             if (e.target.files && e.target.files[0]) {
               verifyFile(e.target.files[0]);

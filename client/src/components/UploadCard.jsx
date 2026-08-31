@@ -62,15 +62,21 @@ function UploadCard() {
   const uploadFile = async (file) => {
     if (!file) return;
 
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error("File exceeds 50MB maximum size limit.");
+      return;
+    }
+
     setUploading(true);
     setProgress(0);
     setUploadResult(null);
 
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("file", file, file.name || "mobile_asset.bin");
 
     try {
       const res = await api.post("/api/files/upload", formData, {
+        timeout: 120000, // 2 minutes for mobile / large camera images
         onUploadProgress: (progressEvent) => {
           if (progressEvent.total) {
             const percentCompleted = Math.round(
@@ -82,14 +88,17 @@ function UploadCard() {
       });
 
       setUploadResult(res.data);
-      toast.success(`"${file.name}" anchored to ${activeProvider.toUpperCase()} vault!`);
+      toast.success(`"${res.data.filename || file.name}" anchored to ${activeProvider.toUpperCase()} vault!`);
       await loadFiles();
     } catch (err) {
-      console.error(err);
-      const msg = err.response?.data?.detail || "File upload failed";
+      console.error("Upload error", err);
+      const msg = err.response?.data?.detail || err.message || "File upload failed";
       toast.error(msg);
     } finally {
       setUploading(false);
+      if (inputRef.current) {
+        inputRef.current.value = "";
+      }
     }
   };
 
@@ -241,9 +250,10 @@ function UploadCard() {
         </div>
 
         <input
-          hidden
           ref={inputRef}
           type="file"
+          accept="*/*"
+          style={{ display: "none" }}
           onChange={(e) => {
             if (e.target.files && e.target.files[0]) {
               uploadFile(e.target.files[0]);
@@ -373,8 +383,8 @@ function UploadCard() {
             NO FILES ANCHORED IN VAULT. UPLOAD A FILE ABOVE TO ESTABLISH CRYPTOGRAPHIC BASELINE.
           </div>
         ) : (
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "12px" }}>
+          <div className="table-responsive">
+            <table style={{ width: "100%", minWidth: "650px", borderCollapse: "collapse", textAlign: "left", fontSize: "12px" }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid var(--outline-variant)", color: "var(--on-surface-variant)", fontFamily: "'JetBrains Mono', monospace" }}>
                   <th style={{ padding: "10px 12px" }}>FILE NAME</th>

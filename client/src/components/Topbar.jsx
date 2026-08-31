@@ -1,5 +1,6 @@
 import { useLocation, Link } from "react-router-dom";
-import { Cloud, Radio } from "lucide-react";
+import { Cloud, Radio, Menu } from "lucide-react";
+import { SentinelIcon } from "./Logo";
 import { getAuthUser } from "../services/api";
 
 const routeMeta = {
@@ -63,8 +64,59 @@ function Topbar({ title, description }) {
   const initial = displayName.charAt(0).toUpperCase();
   const activeProvider = (user.preferred_cloud_provider || user.active_cloud_provider || "local").toUpperCase();
 
+  const handleToggleSidebar = () => {
+    window.dispatchEvent(new CustomEvent("toggle-mobile-sidebar"));
+  };
+
   return (
-    <header className="dashboard-header">
+    <>
+      {/* Sticky Mobile Nav Strip (Visible only on <1024px) */}
+      <div className="mobile-nav-strip">
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <button
+            type="button"
+            className="mobile-menu-btn"
+            onClick={handleToggleSidebar}
+            title="Open Menu Drawer"
+            style={{ display: "flex" }}
+          >
+            <Menu size={20} />
+          </button>
+
+          <Link to="/dashboard" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
+            <SentinelIcon size={24} />
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: "14px", color: "var(--primary)", letterSpacing: "1px" }}>
+              SENTINEL
+            </span>
+          </Link>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <Link
+            to="/storage"
+            style={{
+              fontSize: "10px",
+              fontFamily: "'JetBrains Mono', monospace",
+              color: "var(--primary)",
+              border: "1px solid var(--outline-variant)",
+              padding: "3px 7px",
+              background: "var(--surface-lowest)",
+              textTransform: "uppercase",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+            }}
+          >
+            <Cloud size={11} /> {activeProvider}
+          </Link>
+
+          <Link to="/profile" className="user-avatar" style={{ width: "28px", height: "28px", fontSize: "12px", textDecoration: "none" }}>
+            {initial}
+          </Link>
+        </div>
+      </div>
+
+      <header className="dashboard-header">
       <div>
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           <p className="dashboard-tag">
@@ -159,8 +211,10 @@ function Topbar({ title, description }) {
         </Link>
       </div>
     </header>
+  </>
   );
 }
 
 export default Topbar;
+
 

@@ -252,7 +252,7 @@ function Profile() {
               Essential cryptographic identity information and alert notification endpoints.
             </p>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+            <div className="responsive-form-grid">
               <div className="form-group">
                 <label style={{ color: "var(--on-surface-variant)", fontSize: "11px", fontWeight: "600", textTransform: "uppercase", fontFamily: "'JetBrains Mono', monospace" }}>Operator Handle (Username)</label>
                 <input

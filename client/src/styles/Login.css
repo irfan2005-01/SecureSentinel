@@ -449,4 +449,50 @@
   z-index: 10;
 }
 
+@media (max-width: 768px) {
+  .login-page {
+    padding: 12px 10px;
+    justify-content: flex-start;
+  }
+
+  .login-top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 10px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+  }
+
+  .login-card {
+    padding: 20px 16px;
+    width: 100%;
+    max-width: 100%;
+    margin-top: 8px;
+  }
+
+  .login-card h1 {
+    font-size: 18px;
+  }
+
+  .login-card p {
+    font-size: 12px;
+  }
+
+  .default-creds-hint {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .login-bottom-strip {
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+    margin-top: 16px;
+  }
+}
+
+
 

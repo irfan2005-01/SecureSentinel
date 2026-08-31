@@ -19,14 +19,18 @@ router = APIRouter()
 CHUNK_SIZE = 1024 * 1024 # 1MB safe memory buffer
 
 
-def sanitize_filename(filename: str) -> str:
+def sanitize_filename(filename: Optional[str]) -> str:
     """
     Sanitizes filenames to prevent Path Traversal, OS command injection, and special character issues.
+    Gracefully handles mobile camera uploads, URI encoded names, and extensionless assets.
     """
+    if not filename or not filename.strip():
+        return f"mobile_asset_{uuid.uuid4().hex[:6]}.bin"
     clean_name = Path(filename).name
     clean_name = re.sub(r'[\r\n\0]', '', clean_name)
     clean_name = re.sub(r'[^a-zA-Z0-9._\-+ ]', '_', clean_name)
-    return clean_name.strip() or "unnamed_file"
+    clean_name = clean_name.strip(" ._")
+    return clean_name or f"asset_{uuid.uuid4().hex[:6]}.bin"
 
 
 @router.post("/upload")
@@ -35,22 +39,30 @@ async def upload_file(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    safe_filename = sanitize_filename(file.filename or "upload.dat")
+    safe_filename = sanitize_filename(file.filename)
     file_uuid = uuid.uuid4().hex
     stored_filename = f"{file_uuid}_{safe_filename}"
 
     # Resolve active cloud storage provider
     provider_name = current_user.active_cloud_provider or "local"
     storage_config = current_user.get_storage_config()
-    storage_driver = get_storage_provider(provider_name, storage_config)
+    
+    try:
+        storage_driver = get_storage_provider(provider_name, storage_config)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Storage driver initialization failed: {str(e)}",
+        )
 
     hasher = hashlib.sha256()
     total_size = 0
 
     # Stream in safe 1MB chunks to a spool/temp file to prevent memory exhaustion (DoS)
-    with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
-        tmp_path = tmp_file.name
-        try:
+    tmp_path = None
+    try:
+        with tempfile.NamedTemporaryFile(delete=False) as tmp_file:
+            tmp_path = tmp_file.name
             while True:
                 chunk = await file.read(CHUNK_SIZE)
                 if not chunk:
@@ -60,18 +72,23 @@ async def upload_file(
                 tmp_file.write(chunk)
             tmp_file.flush()
 
-            sha256_hash = hasher.hexdigest()
+        sha256_hash = hasher.hexdigest()
 
-            # Upload stream to storage provider
-            with open(tmp_path, "rb") as f_read:
-                stored_path = storage_driver.upload_file(f_read, stored_filename)
+        # Upload stream to storage provider
+        with open(tmp_path, "rb") as f_read:
+            stored_path = storage_driver.upload_file(f_read, stored_filename)
 
-        finally:
-            if os.path.exists(tmp_path):
-                try:
-                    os.remove(tmp_path)
-                except Exception:
-                    pass
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"File storage upload failed: {str(e)}",
+        )
+    finally:
+        if tmp_path and os.path.exists(tmp_path):
+            try:
+                os.remove(tmp_path)
+            except Exception:
+                pass
 
     # Check if a record exists for this user and filename
     existing = (
