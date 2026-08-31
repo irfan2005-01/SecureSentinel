@@ -49,7 +49,7 @@ class FileRecord(Base):
     storage_provider = Column(String(50), default="local")
     storage_path = Column(String(512), nullable=False)
     file_size = Column(Integer, default=0)
-    mime_type = Column(String(100), default="application/octet-stream")
+    mime_type = Column(String(255), default="application/octet-stream")
     sha256 = Column(String(64), nullable=False, index=True)
     status = Column(String(50), default="Verified")
     uploaded_at = Column(DateTime, default=utc_now)

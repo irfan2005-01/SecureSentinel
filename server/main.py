@@ -50,28 +50,17 @@ app = FastAPI(
     version="2.0.0",
 )
 
-# Configure CORS - Allow all web origins and preflights dynamically
+# Configure CORS - Allow all origins dynamically with credentials for Brave and mobile browsers
 origins_str = os.getenv("CORS_ORIGINS", "*")
-if origins_str.strip() == "*" or not origins_str.strip():
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=False,
-        allow_methods=["*"],
-        allow_headers=["*"],
-        expose_headers=["*"],
-    )
-else:
-    origins = [o.strip() for o in origins_str.split(",") if o.strip()]
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=origins,
-        allow_origin_regex=r"https?://.*",
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-        expose_headers=["*"],
-    )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"] if origins_str.strip() == "*" else [o.strip() for o in origins_str.split(",") if o.strip()],
+    allow_origin_regex=r"https?://.*",
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"],
+)
 
 # Ensure runtime directories exist
 os.makedirs("uploads", exist_ok=True)

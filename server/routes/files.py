@@ -103,15 +103,17 @@ async def upload_file(
                 storage_driver.delete_file(existing.storage_path)
             except Exception:
                 pass
+        safe_mime = (file.content_type or "application/octet-stream")[:250]
         existing.stored_filename = stored_filename
         existing.storage_provider = provider_name
         existing.storage_path = stored_path
         existing.file_size = total_size
-        existing.mime_type = file.content_type or "application/octet-stream"
+        existing.mime_type = safe_mime
         existing.sha256 = sha256_hash
         existing.status = "Verified"
         record = existing
     else:
+        safe_mime = (file.content_type or "application/octet-stream")[:250]
         record = FileRecord(
             user_id=current_user.id,
             filename=safe_filename,
@@ -119,7 +121,7 @@ async def upload_file(
             storage_provider=provider_name,
             storage_path=stored_path,
             file_size=total_size,
-            mime_type=file.content_type or "application/octet-stream",
+            mime_type=safe_mime,
             sha256=sha256_hash,
             status="Verified",
         )
