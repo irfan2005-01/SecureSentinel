@@ -16,6 +16,7 @@ import {
   RefreshCw,
   Sliders,
 } from "lucide-react";
+import { SentinelIcon } from "../components/Logo";
 import { isAuthenticated } from "../services/api";
 
 // Fast browser-native SHA-256 helper for live avalanche sandbox
@@ -87,8 +88,8 @@ function Home() {
       <header className="sticky top-0 z-50 h-14 bg-[#0e141b]/95 backdrop-blur-md border-b border-[#4f4537] flex items-center justify-between px-6">
         <div className="flex items-center gap-4">
           <Link to="/" className="flex items-center gap-3 group">
-            <div className="w-8 h-8 rounded-sm bg-[#f3be65] text-[#432c00] flex items-center justify-center font-black text-sm">
-              <Shield size={18} strokeWidth={2.5} />
+            <div style={{ filter: "drop-shadow(0 0 6px rgba(243, 190, 101, 0.35))" }}>
+              <SentinelIcon size={30} />
             </div>
             <span className="font-mono text-sm tracking-widest text-[#f3be65] font-bold uppercase">
               SecureSentinel
@@ -498,7 +499,7 @@ function Home() {
         <div className="max-w-[1200px] mx-auto w-full grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-3">
-              <Shield size={18} className="text-[#f3be65]" />
+              <SentinelIcon size={22} />
               <span className="font-mono text-sm font-bold text-[#f3be65] tracking-widest uppercase">
                 SecureSentinel
               </span>

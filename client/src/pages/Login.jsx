@@ -14,6 +14,7 @@ import {
   Globe,
   Radio,
 } from "lucide-react";
+import { SentinelIcon } from "../components/Logo";
 import api, { setAuthSession } from "../services/api";
 import "../styles/Login.css";
 
@@ -112,8 +113,8 @@ function Login() {
 
       {/* Top Tactical Header Bar */}
       <div className="login-top-bar">
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <Shield size={14} color="var(--primary)" />
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <SentinelIcon size={18} />
           <strong style={{ color: "var(--primary)" }}>SECURESENTINEL GATEWAY</strong>
           <span>• PROTOCOL V4.2</span>
         </div>

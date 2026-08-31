@@ -11,6 +11,7 @@ import {
   Shield,
   Activity,
 } from "lucide-react";
+import { SentinelIcon } from "./Logo";
 import { clearAuthSession, getAuthUser } from "../services/api";
 
 const menu = [
@@ -64,9 +65,9 @@ function Sidebar() {
   return (
     <aside className="sidebar">
       <div>
-        <div className="sidebar-logo">
-          <div className="logo-circle">
-            <Shield size={20} strokeWidth={2.5} />
+        <div className="sidebar-logo" style={{ cursor: "pointer" }} onClick={() => navigate("/dashboard")}>
+          <div style={{ filter: "drop-shadow(0 0 6px rgba(243, 190, 101, 0.3))" }}>
+            <SentinelIcon size={30} />
           </div>
           <div>
             <h2>SENTINEL</h2>
