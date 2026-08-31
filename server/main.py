@@ -50,17 +50,28 @@ app = FastAPI(
     version="2.0.0",
 )
 
-# Configure CORS
-origins_str = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173,http://localhost:4173")
-origins = [o.strip() for o in origins_str.split(",") if o.strip()]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Configure CORS - Allow all web origins and preflights dynamically
+origins_str = os.getenv("CORS_ORIGINS", "*")
+if origins_str.strip() == "*" or not origins_str.strip():
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=False,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["*"],
+    )
+else:
+    origins = [o.strip() for o in origins_str.split(",") if o.strip()]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_origin_regex=r"https?://.*",
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["*"],
+    )
 
 # Ensure runtime directories exist
 os.makedirs("uploads", exist_ok=True)
