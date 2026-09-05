@@ -9,6 +9,11 @@ const routeMeta = {
     tag: "SOC TELEMETRY",
     desc: "Real-time cryptographic file integrity monitoring and threat analysis",
   },
+  "/agentic-hub": {
+    title: "Agentic Solutions Hub (Powered by x402)",
+    tag: "ALGORAND AVM",
+    desc: "Autonomous agent gating on-chain file attestations and forensic scans via x402 and GoPlausible",
+  },
   "/files": {
     title: "Vault File Ingestion & Records",
     tag: "VAULT STORAGE",

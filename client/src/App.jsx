@@ -8,6 +8,7 @@ import Logs from "./pages/dashboard/Logs";
 import Alerts from "./pages/dashboard/Alerts";
 import Profile from "./pages/dashboard/Profile";
 import StorageConfig from "./pages/dashboard/StorageConfig";
+import AgenticHub from "./pages/dashboard/AgenticHub";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -29,6 +30,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/agentic-hub"
+          element={
+            <ProtectedRoute>
+              <AgenticHub />
             </ProtectedRoute>
           }
         />

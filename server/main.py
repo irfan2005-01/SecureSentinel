@@ -18,7 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from server.database import Base, engine, SessionLocal, get_db
-from server.routes import auth, files, verification, analytics, storage_config
+from server.routes import auth, files, verification, analytics, storage_config, x402
 from server.models import User
 from server.auth.security import hash_password
 
@@ -72,6 +72,7 @@ app.include_router(files.router, prefix="/api/files", tags=["File Management"])
 app.include_router(verification.router, prefix="/api/verify", tags=["Integrity Verification"])
 app.include_router(analytics.router, prefix="/api/analytics", tags=["Analytics & Logs"])
 app.include_router(storage_config.router, prefix="/api/storage", tags=["Cloud Storage Providers"])
+app.include_router(x402.router, prefix="/api/x402", tags=["x402 Protocol & Algorand"])
 
 # Legacy Route Aliases for backwards compatibility with previous clients
 app.include_router(auth.router, tags=["Legacy Auth"])

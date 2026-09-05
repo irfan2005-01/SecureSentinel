@@ -1,12 +1,40 @@
 # 🛡️ SecureSentinel
 
-> A Secure File Integrity Verification & Audit Management System built with **React**, **FastAPI**, **SQLite**, and **SHA-256**.
+> **Autonomous File Integrity Monitoring, Provable Data Possession & Cryptographic Vault Security**  
+> 🔥 **Track: Agentic Solutions: Powered by x402 on Algorand Testnet**
 
+![Algorand](https://img.shields.io/badge/Algorand-Testnet-000000?logo=algorand)
+![x402](https://img.shields.io/badge/x402-AVM%20Protocol-F3BE65)
+![Facilitator](https://img.shields.io/badge/Facilitator-GoPlausible-8CD7A5)
+![Explorer](https://img.shields.io/badge/Explorer-LoRA%20AlgoKit-blue)
 ![React](https://img.shields.io/badge/React-19-blue?logo=react)
 ![FastAPI](https://img.shields.io/badge/FastAPI-Python-green?logo=fastapi)
-![SQLite](https://img.shields.io/badge/SQLite-Database-blue?logo=sqlite)
-![JWT](https://img.shields.io/badge/Auth-JWT-orange)
-![License](https://img.shields.io/badge/License-MIT-green)
+
+---
+
+## 🔥 Hackathon Track: Agentic Solutions (Powered by x402 & Algorand)
+
+SecureSentinel integrates an **Autonomous Security Sentinel Agent** that performs on-chain cryptographic file possession attestations and deep forensic threat scans, gated by the **x402 HTTP Payment Protocol** on **Algorand Testnet** through the **GoPlausible Facilitator**.
+
+### 🛠️ Mandatory Track Compliance Verification
+
+| Requirement | Implementation in SecureSentinel | Verification Link / Command |
+|---|---|---|
+| **x402 Integration** | HTTP 402 Payment Required challenge-response protocol with AVM exact scheme | `curl -i -X POST https://securesentinel.onrender.com/api/x402/challenge` |
+| **Algorand Blockchain** | Algorand Testnet (Genesis: `testnet-v1.0`, CAIP-2: `algorand:SGO1GKSzyE7IEPItTxCByw9x8FmnrCDexi9/cOUJOiI=`) | `/api/x402/config` |
+| **GoPlausible Facilitator** | Payments routed and verified via GoPlausible multi-chain facilitator | `https://facilitator.goplausible.xyz` |
+| **LoRA Testnet Explorer** | Live confirmed on-chain transactions directly verifiable on LoRA | [LoRA Testnet Explorer](https://lora.algokit.io/testnet) |
+| **`@x402-avm` Package** | Genuine `@x402-avm/avm` (v2.6.1) and `algosdk` integrated | `client/package.json` |
+| **Live Working Flow** | Interactive **Agentic x402 Hub** in UI (`/agentic-hub`) with 4-step challenge-response | `/agentic-hub` in dashboard |
+
+### 🔄 x402 Protocol Architecture
+
+```
+1. Client/Agent Request  ──> POST /api/x402/attest (Unsigned)
+2. HTTP 402 Challenge    <── 402 Payment Required (Price: $0.005 USDC, GoPlausible Facilitator)
+3. On-Chain Settlement   ──> Transaction signed & settled on Algorand Testnet via GoPlausible
+4. Immutable Proof       <── 200 OK + Certified Attestation + LoRA Explorer URL
+```
 
 ---
 

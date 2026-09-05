@@ -12,6 +12,7 @@ import {
   Shield,
   Activity,
   X,
+  Zap,
 } from "lucide-react";
 import { SentinelIcon } from "./Logo";
 import { clearAuthSession, getAuthUser } from "../services/api";
@@ -21,6 +22,12 @@ const menu = [
     name: "Dashboard",
     path: "/dashboard",
     icon: <LayoutDashboard size={17} />,
+  },
+  {
+    name: "Agentic x402 Hub",
+    path: "/agentic-hub",
+    icon: <Zap size={17} color="var(--primary)" />,
+    badge: "x402",
   },
   {
     name: "File Vault",
@@ -136,7 +143,24 @@ function Sidebar() {
                 }
               >
                 <span className="sidebar-icon">{item.icon}</span>
-                <span>{item.name}</span>
+                <span style={{ flex: 1 }}>{item.name}</span>
+                {item.badge && (
+                  <span
+                    style={{
+                      fontSize: "9px",
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontWeight: "800",
+                      background: "rgba(243, 190, 101, 0.15)",
+                      color: "var(--primary)",
+                      border: "1px solid var(--primary)",
+                      padding: "1px 5px",
+                      borderRadius: "2px",
+                      letterSpacing: "0.5px",
+                    }}
+                  >
+                    {item.badge}
+                  </span>
+                )}
               </NavLink>
             ))}
           </nav>
